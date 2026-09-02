@@ -1,4 +1,3 @@
-<script>
 document.addEventListener("DOMContentLoaded", () => {
 
   const STORAGE_KEY = "ageVerified";
@@ -2715,5 +2714,3 @@ window.Webflow.push(function () {
   checkState();
 
 });
-
-</script>
