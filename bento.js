@@ -1185,11 +1185,9 @@ window.Webflow.push(function () {
       scale: 1.004,
       squashX: 1,
       squashY: 1,
-      duration: 6.8,
+      durationMin: 6.5,
+      durationMax: 9,
       delay: 0,
-      driftX: -0.65,
-      driftY: 0.36,
-      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 50%'
     },
@@ -1201,11 +1199,9 @@ window.Webflow.push(function () {
       scale: 1.018,
       squashX: 1.012,
       squashY: 0.988,
-      duration: 4.7,
+      durationMin: 4.8,
+      durationMax: 7.4,
       delay: 0.35,
-      driftX: -0.65,
-      driftY: 0.36,
-      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 58%'
     },
@@ -1217,17 +1213,15 @@ window.Webflow.push(function () {
       scale: 1.024,
       squashX: 1.014,
       squashY: 0.986,
-      duration: 5.4,
+      durationMin: 5.2,
+      durationMax: 8,
       delay: 0.8,
-      driftX: -0.65,
-      driftY: 0.36,
-      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 62%'
     }
   ];
 
-  let timelines = [];
+  let motionTweens = [];
   let running = false;
 
 
@@ -1258,44 +1252,62 @@ window.Webflow.push(function () {
      FLOAT SEQUENCE
   ========================================= */
 
-  function createFloatTimeline(layer) {
+  function driftLayer(layer) {
 
-    const tl = gsap.timeline({
-      repeat: -1,
-      delay: layer.delay
+    if (!running) return;
+
+    const duration = gsap.utils.random(
+      layer.durationMin,
+      layer.durationMax
+    );
+
+    const scale = gsap.utils.random(
+      1,
+      layer.scale
+    );
+
+    const tween = gsap.to(layer.el, {
+      x: gsap.utils.random(-layer.x, layer.x),
+      y: gsap.utils.random(-layer.y, layer.y),
+      rotation: gsap.utils.random(
+        -Math.abs(layer.rotation),
+        Math.abs(layer.rotation)
+      ),
+      scaleX: scale * gsap.utils.random(1, layer.squashX),
+      scaleY: scale * gsap.utils.random(layer.squashY, 1),
+      duration: duration,
+      ease: layer.ease,
+      overwrite: 'auto',
+      onComplete: function () {
+        const index = motionTweens.indexOf(tween);
+
+        if (index > -1) {
+          motionTweens.splice(index, 1);
+        }
+
+        driftLayer(layer);
+      }
     });
 
-    tl.to(layer.el, {
-      x: layer.x,
-      y: -layer.y,
-      rotation: layer.rotation,
-      scaleX: layer.scale * layer.squashX,
-      scaleY: layer.scale * layer.squashY,
-      duration: layer.duration * 0.38,
-      ease: layer.ease
-    });
+    motionTweens.push(tween);
+  }
 
-    tl.to(layer.el, {
-      x: layer.x * layer.driftX,
-      y: layer.y * layer.driftY,
-      rotation: layer.rotation * layer.driftRotation,
-      scaleX: 1,
-      scaleY: 1,
-      duration: layer.duration * 0.36,
-      ease: layer.ease
-    });
+  function startLayer(layer) {
 
-    tl.to(layer.el, {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      scaleX: 1,
-      scaleY: 1,
-      duration: layer.duration * 0.26,
-      ease: layer.ease
-    });
+    const startTween = gsap.delayedCall(
+      layer.delay,
+      function () {
+        const index = motionTweens.indexOf(startTween);
 
-    return tl;
+        if (index > -1) {
+          motionTweens.splice(index, 1);
+        }
+
+        driftLayer(layer);
+      }
+    );
+
+    motionTweens.push(startTween);
   }
 
 
@@ -1309,7 +1321,7 @@ window.Webflow.push(function () {
 
     running = true;
 
-    timelines = layers.map(createFloatTimeline);
+    layers.forEach(startLayer);
   }
 
 
@@ -1323,11 +1335,11 @@ window.Webflow.push(function () {
 
     running = false;
 
-    timelines.forEach(function (timeline) {
-      timeline.kill();
+    motionTweens.forEach(function (tween) {
+      tween.kill();
     });
 
-    timelines = [];
+    motionTweens = [];
 
     gsap.set(layers.map(function (layer) {
       return layer.el;
