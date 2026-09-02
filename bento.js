@@ -1187,6 +1187,9 @@ window.Webflow.push(function () {
       squashY: 1,
       duration: 6.8,
       delay: 0,
+      driftX: -0.65,
+      driftY: 0.36,
+      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 50%'
     },
@@ -1200,6 +1203,9 @@ window.Webflow.push(function () {
       squashY: 0.988,
       duration: 4.7,
       delay: 0.35,
+      driftX: -0.65,
+      driftY: 0.36,
+      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 58%'
     },
@@ -1213,6 +1219,9 @@ window.Webflow.push(function () {
       squashY: 0.986,
       duration: 5.4,
       delay: 0.8,
+      driftX: -0.65,
+      driftY: 0.36,
+      driftRotation: -0.7,
       ease: 'sine.inOut',
       origin: '50% 62%'
     }
@@ -1262,17 +1271,27 @@ window.Webflow.push(function () {
       rotation: layer.rotation,
       scaleX: layer.scale * layer.squashX,
       scaleY: layer.scale * layer.squashY,
-      duration: layer.duration * 0.5,
+      duration: layer.duration * 0.38,
       ease: layer.ease
     });
 
     tl.to(layer.el, {
-      x: -layer.x * 0.65,
-      y: layer.y * 0.36,
-      rotation: -layer.rotation * 0.7,
+      x: layer.x * layer.driftX,
+      y: layer.y * layer.driftY,
+      rotation: layer.rotation * layer.driftRotation,
       scaleX: 1,
       scaleY: 1,
-      duration: layer.duration * 0.5,
+      duration: layer.duration * 0.36,
+      ease: layer.ease
+    });
+
+    tl.to(layer.el, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1,
+      duration: layer.duration * 0.26,
       ease: layer.ease
     });
 
