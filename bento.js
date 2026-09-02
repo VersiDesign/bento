@@ -840,19 +840,52 @@ window.Webflow.push(function () {
      SETUP
   ========================================= */
 
-  const frames = [
+  const characterFrames = [
     frameA,
-    frameB,
-    frameC,
-    frameD,
-    frameE
+    frameD
   ].filter(function (frame) {
     return frame;
   });
 
-  const motionLayers = frames.map(function (frame) {
+  const stackItems = [
+    {
+      frame: frameB,
+      zIndex: 2,
+      liftY: -28,
+      settleDelay: 0
+    },
+    {
+      frame: frameC,
+      zIndex: 3,
+      liftY: -36,
+      settleDelay: 0.025
+    },
+    {
+      frame: frameE,
+      zIndex: 4,
+      liftY: -44,
+      settleDelay: 0.05
+    }
+  ].filter(function (item) {
+    return item.frame;
+  }).map(function (item) {
+    item.layer = item.frame.firstElementChild || item.frame;
+    return item;
+  });
+
+  const stackFrames = stackItems.map(function (item) {
+    return item.frame;
+  });
+
+  const stackLayers = stackItems.map(function (item) {
+    return item.layer;
+  });
+
+  const characterLayers = characterFrames.map(function (frame) {
     return frame.firstElementChild || frame;
   });
+
+  const allLayers = characterLayers.concat(stackLayers);
 
   const bounceStyles = [
     {
@@ -869,11 +902,15 @@ window.Webflow.push(function () {
   let lastStyleIndex = -1;
   let currentFrame = frameA;
 
-  gsap.set(frames, {
+  gsap.set(characterFrames, {
     autoAlpha: 0
   });
 
-  gsap.set(motionLayers, {
+  gsap.set(stackFrames, {
+    autoAlpha: 1
+  });
+
+  gsap.set(allLayers, {
     y: 0,
     rotation: 0,
     scaleX: 1,
@@ -882,7 +919,18 @@ window.Webflow.push(function () {
   });
 
   gsap.set(frameA, {
-    autoAlpha: 1
+    autoAlpha: 1,
+    zIndex: 1
+  });
+
+  gsap.set(frameD, {
+    zIndex: 1
+  });
+
+  stackItems.forEach(function (item) {
+    gsap.set(item.frame, {
+      zIndex: item.zIndex
+    });
   });
 
   /* =========================================
@@ -915,7 +963,7 @@ window.Webflow.push(function () {
       duration: timing.hold
     });
 
-    tl.to(motionLayers, {
+    tl.to(allLayers, {
       y: 0,
       scaleX: squish.squashScaleX,
       scaleY: squish.squashScaleY,
@@ -935,7 +983,7 @@ window.Webflow.push(function () {
 
     const liftStart = tl.duration();
 
-    tl.to(motionLayers, {
+    tl.to(characterLayers, {
       y: squish.liftY,
       scaleX: squish.stretchScaleX,
       scaleY: squish.stretchScaleY,
@@ -943,12 +991,32 @@ window.Webflow.push(function () {
       ease: 'sine.out'
     }, liftStart);
 
-    tl.to(motionLayers, {
+    stackItems.forEach(function (item) {
+      tl.to(item.layer, {
+        y: item.liftY,
+        scaleX: 1,
+        scaleY: 1,
+        duration: timing.lift + item.settleDelay,
+        ease: 'power2.out'
+      }, liftStart);
+    });
+
+    tl.to(characterLayers, {
       y: 0,
       scaleX: 1,
       scaleY: 1,
       duration: timing.settle,
       ease: 'sine.inOut'
+    }, liftStart + timing.lift);
+
+    stackItems.forEach(function (item) {
+      tl.to(item.layer, {
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
+        duration: timing.settle - item.settleDelay,
+        ease: 'power2.in'
+      }, liftStart + timing.lift + item.settleDelay);
     });
   }
 
@@ -1022,7 +1090,7 @@ window.Webflow.push(function () {
 
     if (!running) return;
 
-    rockTween = gsap.to(motionLayers, {
+    rockTween = gsap.to(allLayers, {
       rotation: gsap.utils.random(
         -rock.rotation,
         rock.rotation
@@ -1056,6 +1124,10 @@ window.Webflow.push(function () {
 
     currentFrame = frameA;
 
+    gsap.set(stackFrames, {
+      autoAlpha: 1
+    });
+
     bounceTimeline = createBounceSequence();
     bounceTimeline.play(0);
 
@@ -1083,11 +1155,15 @@ window.Webflow.push(function () {
       rockTween = null;
     }
 
-    gsap.set(frames, {
+    gsap.set(characterFrames, {
       autoAlpha: 0
     });
 
-    gsap.set(motionLayers, {
+    gsap.set(stackFrames, {
+      autoAlpha: 1
+    });
+
+    gsap.set(allLayers, {
       y: 0,
       rotation: 0,
       scaleX: 1,
