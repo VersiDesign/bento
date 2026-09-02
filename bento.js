@@ -309,10 +309,6 @@ function syncScreenPosition() {
   });
 
 });
-</script>
-
-<script>
-
 /* animation wine slide 2 */
 
 window.Webflow = window.Webflow || [];
@@ -778,11 +774,6 @@ window.Webflow.push(function () {
   );
 
 });
-
-</script>
-
-<script>
-
 /* animation wine slide 3 */
 
 window.Webflow = window.Webflow || [];
@@ -1152,11 +1143,6 @@ window.Webflow.push(function () {
   );
 
 });
-
-</script>
-
-<script>
-
 /* animation wine slide 5 */
 
 window.Webflow = window.Webflow || [];
@@ -1378,11 +1364,6 @@ window.Webflow.push(function () {
   );
 
 });
-
-</script>
-
-<script>
-
 /* Delay Jotform Instagram widget until page has loaded */
 
 window.addEventListener("load", function () {
@@ -2279,11 +2260,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /* Jotform IG carousel control - end */
-  
-</script>
-
-<script>
-
 /* illustration sliders - start */
 
 window.Webflow = window.Webflow || [];
@@ -2413,11 +2389,6 @@ window.Webflow.push(function () {
 });
 
 /* illustration sliders - end */
-
-</script>
-
-<script>
-
 /* animation wine slide 1 */
 
 window.Webflow = window.Webflow || [];
