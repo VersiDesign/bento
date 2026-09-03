@@ -3855,9 +3855,9 @@ window.Webflow.push(function () {
   const floatTiming = {
     downY: 8,
     upY: -7,
-    downDuration: 0.72,
-    upDuration: 1.08,
-    settleDuration: 0.6,
+    downDuration: 1.44,
+    upDuration: 2.16,
+    settleDuration: 1.2,
     cycleDuration: 2.55
   };
 
@@ -3869,47 +3869,84 @@ window.Webflow.push(function () {
     fadeOut: 0.72
   };
 
-  const leaves = [
-    {
-      el: illo.querySelector('.illo-img.img-g'),
+  window.bentoCansSlide3 =
+    window.bentoCansSlide3 || {};
+
+  const leafDefaults = {
+    g: {
       xPercent: -36,
       yPercent: 28,
       driftX: 17,
       driftY: 16,
       rotation: 9
     },
-    {
-      el: illo.querySelector('.illo-img.img-h'),
+    h: {
       xPercent: 36,
       yPercent: -3,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
-    {
-      el: illo.querySelector('.illo-img.img-i'),
+    i: {
       xPercent: -34,
       yPercent: -7,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
-    {
-      el: illo.querySelector('.illo-img.img-j'),
+    j: {
       xPercent: 34,
       yPercent: 27,
       driftX: 17,
       driftY: 15,
       rotation: 9
     },
-    {
-      el: illo.querySelector('.illo-img.img-k'),
+    k: {
       xPercent: 0,
       yPercent: 41,
       driftX: 14,
       driftY: 17,
       rotation: 10
     }
+  };
+
+  const savedLeaves =
+    window.bentoCansSlide3.leaves || {};
+
+  const leafPositions = {};
+
+  Object.keys(leafDefaults).forEach(function (key) {
+    leafPositions[key] = Object.assign(
+      {},
+      leafDefaults[key],
+      savedLeaves[key] || {}
+    );
+  });
+
+  window.bentoCansSlide3.leaves =
+    leafPositions;
+
+  const leaves = [
+    Object.assign({
+      key: 'g',
+      el: illo.querySelector('.illo-img.img-g')
+    }, leafPositions.g),
+    Object.assign({
+      key: 'h',
+      el: illo.querySelector('.illo-img.img-h')
+    }, leafPositions.h),
+    Object.assign({
+      key: 'i',
+      el: illo.querySelector('.illo-img.img-i')
+    }, leafPositions.i),
+    Object.assign({
+      key: 'j',
+      el: illo.querySelector('.illo-img.img-j')
+    }, leafPositions.j),
+    Object.assign({
+      key: 'k',
+      el: illo.querySelector('.illo-img.img-k')
+    }, leafPositions.k)
   ].filter(function (leaf) {
     return leaf.el;
   });
@@ -3924,7 +3961,8 @@ window.Webflow.push(function () {
      SETUP
   ========================================= */
 
-  let sequenceTimeline = null;
+  let breathTimeline = null;
+  let rippleTimeline = null;
   let leafTweens = [];
   let running = false;
 
@@ -3946,7 +3984,7 @@ window.Webflow.push(function () {
     transformOrigin: '50% 55%'
   });
 
-  leaves.forEach(function (leaf, index) {
+  function applyLeafPosition(leaf) {
     gsap.set(leaf.el, {
       autoAlpha: 1,
       xPercent: leaf.xPercent,
@@ -3954,10 +3992,69 @@ window.Webflow.push(function () {
       x: 0,
       y: 0,
       rotation: 0,
+      transformOrigin: '50% 50%'
+    });
+  }
+
+  leaves.forEach(function (leaf, index) {
+    applyLeafPosition(leaf);
+
+    gsap.set(leaf.el, {
       zIndex: 3 + index,
       transformOrigin: '50% 50%'
     });
   });
+
+  window.bentoCansSlide3.setLeaf = function (key, settings) {
+    const leaf =
+      leaves.find(function (item) {
+        return item.key === key;
+      });
+
+    if (!leaf) return null;
+
+    Object.assign(
+      leafPositions[key],
+      settings || {}
+    );
+
+    Object.assign(
+      leaf,
+      settings || {}
+    );
+
+    applyLeafPosition(leaf);
+
+    return leafPositions;
+  };
+
+  window.bentoCansSlide3.setLeaves = function (settings) {
+    Object.keys(settings || {}).forEach(function (key) {
+      window.bentoCansSlide3.setLeaf(
+        key,
+        settings[key]
+      );
+    });
+
+    return leafPositions;
+  };
+
+  window.bentoCansSlide3.applyLeaves = function () {
+    leaves.forEach(function (leaf) {
+      Object.assign(
+        leaf,
+        leafPositions[leaf.key]
+      );
+
+      applyLeafPosition(leaf);
+    });
+
+    return leafPositions;
+  };
+
+  window.bentoCansSlide3.getLeaves = function () {
+    return leafPositions;
+  };
 
 
   /* =========================================
@@ -3979,7 +4076,7 @@ window.Webflow.push(function () {
     });
   }
 
-  function createWaterSequence() {
+  function createBreathSequence() {
     const tl = gsap.timeline({
       paused: true,
       repeat: -1,
@@ -3993,6 +4090,39 @@ window.Webflow.push(function () {
       duration: floatTiming.downDuration,
       ease: 'sine.inOut'
     }, 0);
+
+    tl.to(character, {
+      y: floatTiming.upY,
+      scaleX: 0.997,
+      scaleY: 1.006,
+      duration: floatTiming.upDuration,
+      ease: 'sine.inOut'
+    }, floatTiming.downDuration);
+
+    tl.to(character, {
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+      duration: floatTiming.settleDuration,
+      ease: 'sine.inOut'
+    }, floatTiming.downDuration + floatTiming.upDuration);
+
+    tl.to({}, {
+      duration: Math.max(
+        0,
+        floatTiming.cycleDuration * 2 - tl.duration()
+      )
+    });
+
+    return tl;
+  }
+
+  function createRippleSequence() {
+    const tl = gsap.timeline({
+      paused: true,
+      repeat: -1,
+      repeatDelay: 0
+    });
 
     ripples.forEach(function (ripple, index) {
       const rippleStart =
@@ -4015,22 +4145,6 @@ window.Webflow.push(function () {
         ease: 'sine.inOut'
       }, rippleStart + rippleTiming.fadeIn + rippleTiming.hold);
     });
-
-    tl.to(character, {
-      y: floatTiming.upY,
-      scaleX: 0.997,
-      scaleY: 1.006,
-      duration: floatTiming.upDuration,
-      ease: 'sine.inOut'
-    }, floatTiming.downDuration);
-
-    tl.to(character, {
-      y: 0,
-      scaleX: 1,
-      scaleY: 1,
-      duration: floatTiming.settleDuration,
-      ease: 'sine.inOut'
-    }, floatTiming.downDuration + floatTiming.upDuration);
 
     tl.to({}, {
       duration: Math.max(
@@ -4119,12 +4233,19 @@ window.Webflow.push(function () {
 
     resetWater();
 
-    if (sequenceTimeline) {
-      sequenceTimeline.kill();
+    if (breathTimeline) {
+      breathTimeline.kill();
     }
 
-    sequenceTimeline = createWaterSequence();
-    sequenceTimeline.play(0);
+    if (rippleTimeline) {
+      rippleTimeline.kill();
+    }
+
+    breathTimeline = createBreathSequence();
+    breathTimeline.play(0);
+
+    rippleTimeline = createRippleSequence();
+    rippleTimeline.play(0);
 
     startLeaves();
   }
@@ -4140,9 +4261,14 @@ window.Webflow.push(function () {
 
     running = false;
 
-    if (sequenceTimeline) {
-      sequenceTimeline.kill();
-      sequenceTimeline = null;
+    if (breathTimeline) {
+      breathTimeline.kill();
+      breathTimeline = null;
+    }
+
+    if (rippleTimeline) {
+      rippleTimeline.kill();
+      rippleTimeline = null;
     }
 
     stopLeaves();
