@@ -2551,7 +2551,7 @@ window.Webflow.push(function () {
 
   const stomp = {
     rotation: 5.5,
-    duration: 0.34
+    duration: 0.36
   };
 
   const flowerSpin = {
@@ -2589,7 +2589,7 @@ window.Webflow.push(function () {
     [legs, torso, bowl].concat(flowers);
 
   let torsoTween = null;
-  let stompTimeline = null;
+  let stompTween = null;
   let flowerTweens = [];
   let running = false;
 
@@ -2635,7 +2635,8 @@ window.Webflow.push(function () {
 
   gsap.set(flowerSpinLayers, {
     rotation: 0,
-    transformOrigin: '50% 50%'
+    transformOrigin: '50% 50%',
+    transformBox: 'fill-box'
   });
 
 
@@ -2654,11 +2655,11 @@ window.Webflow.push(function () {
   }
 
   function startStomp() {
-    stompTimeline = gsap.timeline({
+    stompTween = gsap.timeline({
       repeat: -1
     });
 
-    stompTimeline
+    stompTween
       .to(legs, {
         rotation: -stomp.rotation,
         duration: stomp.duration,
@@ -2670,8 +2671,8 @@ window.Webflow.push(function () {
         ease: 'sine.inOut'
       })
       .to(legs, {
-        rotation: 0,
-        duration: stomp.duration,
+        rotation: -stomp.rotation,
+        duration: stomp.duration * 2,
         ease: 'sine.inOut'
       });
   }
@@ -2734,9 +2735,9 @@ window.Webflow.push(function () {
       torsoTween = null;
     }
 
-    if (stompTimeline) {
-      stompTimeline.kill();
-      stompTimeline = null;
+    if (stompTween) {
+      stompTween.kill();
+      stompTween = null;
     }
 
     flowerTweens.forEach(function (tween) {
