@@ -2544,6 +2544,10 @@ window.Webflow.push(function () {
     return;
   }
 
+  if (flowerWrap && flowerWrap.parentElement !== torso) {
+    torso.appendChild(flowerWrap);
+  }
+
 
   /* =========================================
      MOTION SETTINGS
@@ -2569,7 +2573,7 @@ window.Webflow.push(function () {
   ========================================= */
 
   const torsoFloatLayers =
-    [torso].concat(flowerWrap ? [flowerWrap] : []);
+    [torso];
 
   const visibleLayers =
     [legs, torso, bowl]
@@ -2608,7 +2612,7 @@ window.Webflow.push(function () {
 
   if (flowerWrap) {
     gsap.set(flowerWrap, {
-      zIndex: 4,
+      zIndex: 1,
       y: 0,
       rotation: 0,
       transformOrigin: '50% 50%'
