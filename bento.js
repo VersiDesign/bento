@@ -2581,30 +2581,6 @@ window.Webflow.push(function () {
   let flowerTweens = [];
   let running = false;
 
-  function syncFlowerWrapToTorso() {
-    if (!flowerWrap) return;
-
-    const illoRect =
-      illo.getBoundingClientRect();
-    const torsoRect =
-      torso.getBoundingClientRect();
-
-    if (!illoRect.width || !torsoRect.width) return;
-
-    gsap.set(flowerWrap, {
-      position: 'absolute',
-      left: torsoRect.left - illoRect.left,
-      top: torsoRect.top - illoRect.top,
-      width: torsoRect.width,
-      height: torsoRect.height,
-      right: 'auto',
-      bottom: 'auto',
-      x: 0
-    });
-  }
-
-  syncFlowerWrapToTorso();
-
   gsap.set(visibleLayers, {
     autoAlpha: 1,
     force3D: true
@@ -2711,7 +2687,6 @@ window.Webflow.push(function () {
     running = true;
 
     resetMotion();
-    syncFlowerWrapToTorso();
     startTorsoFloat();
     startStomp();
     startFlowerSpin();
@@ -2781,13 +2756,6 @@ window.Webflow.push(function () {
       attributeFilter: ['aria-hidden']
     });
   }
-
-  window.addEventListener('resize', function () {
-    if (!running) return;
-
-    resetMotion();
-    syncFlowerWrapToTorso();
-  });
 
   requestAnimationFrame(checkState);
 
