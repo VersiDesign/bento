@@ -3483,6 +3483,297 @@ window.Webflow.push(function () {
 });
 
 /* animation nama slide 3 - end */
+/* animation cans slide 1 */
+
+window.Webflow = window.Webflow || [];
+
+window.Webflow.push(function () {
+
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath !== '/explore-our-cans') return;
+
+  const illo = document.querySelector(
+    '.products__illo.illo-slide-1'
+  );
+
+  if (!illo) return;
+
+  const slider = document.querySelector('.products-slider');
+  const slides = slider ?
+    Array.from(slider.querySelectorAll('.w-slide')) :
+    [];
+  const matchingSlide = slides[0];
+
+  const character = illo.querySelector('.illo-img.img-a');
+
+  if (!character) {
+    return;
+  }
+
+
+  /* =========================================
+     FLOAT SETTINGS
+  ========================================= */
+
+  const characterFloat = {
+    driftX: 12,
+    driftY: 18,
+    rotation: 2.5,
+    minDuration: 2.8,
+    maxDuration: 4.2
+  };
+
+  const raspberries = [
+    {
+      el: illo.querySelector('.illo-img.img-b'),
+      xPercent: -34,
+      yPercent: -34,
+      driftX: 15,
+      driftY: 18,
+      rotation: 10
+    },
+    {
+      el: illo.querySelector('.illo-img.img-c'),
+      xPercent: 34,
+      yPercent: -36,
+      driftX: 15,
+      driftY: 18,
+      rotation: 10
+    },
+    {
+      el: illo.querySelector('.illo-img.img-d'),
+      xPercent: 48,
+      yPercent: -2,
+      driftX: 17,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-e'),
+      xPercent: 36,
+      yPercent: 32,
+      driftX: 16,
+      driftY: 17,
+      rotation: 9
+    }
+  ].filter(function (raspberry) {
+    return raspberry.el;
+  });
+
+  const raspberryTiming = {
+    minDuration: 2.4,
+    maxDuration: 3.8
+  };
+
+
+  /* =========================================
+     SETUP
+  ========================================= */
+
+  let characterTween = null;
+  let raspberryTweens = [];
+  let running = false;
+
+  gsap.set(character, {
+    autoAlpha: 1,
+    x: 0,
+    y: 0,
+    rotation: 0,
+    zIndex: 1,
+    transformOrigin: '50% 50%'
+  });
+
+  raspberries.forEach(function (raspberry, index) {
+    gsap.set(raspberry.el, {
+      autoAlpha: 1,
+      xPercent: raspberry.xPercent,
+      yPercent: raspberry.yPercent,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      zIndex: 2 + index,
+      transformOrigin: '50% 50%'
+    });
+  });
+
+
+  /* =========================================
+     FLOATING
+  ========================================= */
+
+  function floatCharacter() {
+
+    if (!running) return;
+
+    characterTween = gsap.to(character, {
+      x: gsap.utils.random(
+        -characterFloat.driftX,
+        characterFloat.driftX
+      ),
+
+      y: gsap.utils.random(
+        -characterFloat.driftY,
+        characterFloat.driftY
+      ),
+
+      rotation: gsap.utils.random(
+        -characterFloat.rotation,
+        characterFloat.rotation
+      ),
+
+      duration: gsap.utils.random(
+        characterFloat.minDuration,
+        characterFloat.maxDuration
+      ),
+
+      ease: 'sine.inOut',
+
+      onComplete: floatCharacter
+    });
+  }
+
+  function floatRaspberry(raspberry, index) {
+
+    if (!running) return;
+
+    raspberryTweens[index] = gsap.to(raspberry.el, {
+      x: gsap.utils.random(
+        -raspberry.driftX,
+        raspberry.driftX
+      ),
+
+      y: gsap.utils.random(
+        -raspberry.driftY,
+        raspberry.driftY
+      ),
+
+      rotation: gsap.utils.random(
+        -raspberry.rotation,
+        raspberry.rotation
+      ),
+
+      duration: gsap.utils.random(
+        raspberryTiming.minDuration,
+        raspberryTiming.maxDuration
+      ),
+
+      ease: 'sine.inOut',
+
+      onComplete: function () {
+        floatRaspberry(raspberry, index);
+      }
+    });
+  }
+
+  function startRaspberries() {
+    raspberries.forEach(function (raspberry, index) {
+      floatRaspberry(raspberry, index);
+    });
+  }
+
+  function resetMotion() {
+    gsap.set(character, {
+      x: 0,
+      y: 0,
+      rotation: 0
+    });
+
+    raspberries.forEach(function (raspberry) {
+      gsap.set(raspberry.el, {
+        xPercent: raspberry.xPercent,
+        yPercent: raspberry.yPercent,
+        x: 0,
+        y: 0,
+        rotation: 0
+      });
+    });
+  }
+
+
+  /* =========================================
+     START
+  ========================================= */
+
+  function startAnimation() {
+
+    if (running) return;
+
+    running = true;
+
+    resetMotion();
+    floatCharacter();
+    startRaspberries();
+  }
+
+
+  /* =========================================
+     STOP
+  ========================================= */
+
+  function stopAnimation() {
+
+    if (!running) return;
+
+    running = false;
+
+    if (characterTween) {
+      characterTween.kill();
+      characterTween = null;
+    }
+
+    raspberryTweens.forEach(function (tween) {
+      if (tween) {
+        tween.kill();
+      }
+    });
+
+    raspberryTweens = [];
+
+    resetMotion();
+  }
+
+
+  /* =========================================
+     WATCH ACTIVE SLIDE
+  ========================================= */
+
+  function checkState() {
+
+    const isActiveIllustration =
+      illo.classList.contains('is-active');
+
+    const isActiveSlide =
+      matchingSlide &&
+      matchingSlide.getAttribute('aria-hidden') !== 'true';
+
+    if (isActiveIllustration || isActiveSlide) {
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
+  }
+
+  const observer = new MutationObserver(checkState);
+
+  observer.observe(illo, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
+  if (matchingSlide) {
+    observer.observe(matchingSlide, {
+      attributes: true,
+      attributeFilter: ['aria-hidden']
+    });
+  }
+
+  requestAnimationFrame(checkState);
+
+});
+
+/* animation cans slide 1 - end */
 /* animation wine slide 1 */
 
 window.Webflow = window.Webflow || [];
@@ -3500,6 +3791,7 @@ window.Webflow.push(function () {
 
   if (
     pagePath === '/explore-our-nama' ||
+    pagePath === '/explore-our-cans' ||
     illo.querySelector('.illo-img.yl-flowers')
   ) {
     return;
