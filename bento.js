@@ -2522,22 +2522,22 @@ window.Webflow.push(function () {
   const legs = illo.querySelector('.illo-img.img-a');
   const torso = illo.querySelector('.illo-img.img-b');
   const bowl = illo.querySelector('.illo-img.img-c');
-  let flowers = Array.from(
-    illo.querySelectorAll('.illo-img.img-d')
-  );
+  const flowers = [
+    illo.querySelector('.illo-img.img-d.ly-flower-1'),
+    illo.querySelector('.illo-img.img-d.ly-flower-2'),
+    illo.querySelector('.illo-img.img-d.ly-flower-3')
+  ];
 
-  if (!legs || !torso || !bowl || !flowers.length) return;
-
-  while (flowers.length < 3) {
-    const flowerClone =
-      flowers[0].cloneNode(true);
-
-    flowerClone.classList.add('is-generated-flower');
-    illo.appendChild(flowerClone);
-    flowers.push(flowerClone);
+  if (
+    !legs ||
+    !torso ||
+    !bowl ||
+    flowers.some(function (flower) {
+      return !flower;
+    })
+  ) {
+    return;
   }
-
-  flowers = flowers.slice(0, 3);
 
 
   /* =========================================
@@ -2557,21 +2557,6 @@ window.Webflow.push(function () {
   const flowerSpin = {
     duration: 2.8
   };
-
-  const flowerPositions = [
-    {
-      x: 0,
-      y: -34
-    },
-    {
-      x: -34,
-      y: -8
-    },
-    {
-      x: 34,
-      y: -8
-    }
-  ];
 
 
   /* =========================================
@@ -2618,17 +2603,9 @@ window.Webflow.push(function () {
     transformOrigin: '50% 50%'
   });
 
-  flowers.forEach(function (flower, index) {
-    const position =
-      flowerPositions[index];
-
+  flowers.forEach(function (flower) {
     gsap.set(flower, {
-      position: 'absolute',
       zIndex: 4,
-      left: 'calc(50% + ' + position.x + 'px)',
-      top: 'calc(50% + ' + position.y + 'px)',
-      xPercent: -50,
-      yPercent: -50,
       y: 0,
       rotation: 0,
       transformOrigin: '50% 50%'
