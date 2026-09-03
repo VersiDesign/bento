@@ -2654,7 +2654,7 @@ window.Webflow.push(function () {
   }
 
   const torsoFloatLayers =
-    [torso].concat(flowers);
+    [torso].concat(runtimeFlowerLayer ? [runtimeFlowerLayer] : []);
 
   const visibleLayers =
     [legs, torso, bowl];
@@ -2666,29 +2666,110 @@ window.Webflow.push(function () {
   let flowerLayoutFrame = null;
   let flowerLayoutTimer = null;
 
+  function getPositionOffset(value, freeSpace, fallback) {
+    if (!value) return fallback;
+
+    if (value === 'left' || value === 'top') return 0;
+    if (value === 'center') return freeSpace * 0.5;
+    if (value === 'right' || value === 'bottom') return freeSpace;
+
+    if (value.indexOf('%') > -1) {
+      return freeSpace * (parseFloat(value) / 100);
+    }
+
+    const pixels =
+      parseFloat(value);
+
+    return Number.isFinite(pixels) ? pixels : fallback;
+  }
+
+  function getRenderedImageRect(image) {
+    const rect =
+      image.getBoundingClientRect();
+
+    const naturalWidth =
+      image.naturalWidth || rect.width;
+
+    const naturalHeight =
+      image.naturalHeight || rect.height;
+
+    if (!rect.width || !rect.height || !naturalWidth || !naturalHeight) {
+      return rect;
+    }
+
+    const style =
+      window.getComputedStyle(image);
+
+    const objectFit =
+      style.objectFit;
+
+    if (objectFit !== 'cover' && objectFit !== 'contain') {
+      return rect;
+    }
+
+    const scale =
+      objectFit === 'cover' ?
+        Math.max(rect.width / naturalWidth, rect.height / naturalHeight) :
+        Math.min(rect.width / naturalWidth, rect.height / naturalHeight);
+
+    const renderedWidth =
+      naturalWidth * scale;
+
+    const renderedHeight =
+      naturalHeight * scale;
+
+    const freeX =
+      rect.width - renderedWidth;
+
+    const freeY =
+      rect.height - renderedHeight;
+
+    const position =
+      style.objectPosition.split(/\s+/);
+
+    const offsetX =
+      getPositionOffset(position[0], freeX, freeX * 0.5);
+
+    const offsetY =
+      getPositionOffset(position[1], freeY, freeY * 0.5);
+
+    return {
+      left: rect.left + offsetX,
+      top: rect.top + offsetY,
+      width: renderedWidth,
+      height: renderedHeight
+    };
+  }
+
   function positionFlowersOnTorso() {
-    if (!flowers.length) return;
+    if (!runtimeFlowerLayer || !flowers.length) return;
 
     const torsoRect =
-      torso.getBoundingClientRect();
+      getRenderedImageRect(torso);
+
     const torsoY =
       parseFloat(gsap.getProperty(torso, 'y')) || 0;
 
     if (!torsoRect.width || !torsoRect.height) return;
 
+    gsap.set(runtimeFlowerLayer, {
+      position: 'fixed',
+      left: torsoRect.left,
+      top: torsoRect.top - torsoY,
+      width: torsoRect.width,
+      height: torsoRect.height
+    });
+
     flowers.forEach(function (flower, index) {
       const layout =
         flowerLayout[index] || flowerLayout[0];
 
-      const size =
-        torsoRect.width * layout.size;
-
       gsap.set(flower, {
-        position: 'fixed',
-        left: torsoRect.left + (torsoRect.width * layout.x),
-        top: torsoRect.top - torsoY + (torsoRect.height * layout.y),
-        width: size,
-        height: size,
+        position: 'absolute',
+        left: (layout.x * 100) + '%',
+        top: (layout.y * 100) + '%',
+        width: (layout.size * 100) + '%',
+        height: 'auto',
         xPercent: -50,
         yPercent: -50,
         zIndex: 20
@@ -2751,11 +2832,11 @@ window.Webflow.push(function () {
   if (runtimeFlowerLayer) {
     gsap.set(runtimeFlowerLayer, {
       autoAlpha: 0,
-      position: 'fixed',
+      position: 'absolute',
       left: 0,
       top: 0,
-      width: 0,
-      height: 0,
+      width: '100%',
+      height: '100%',
       backgroundColor: 'transparent',
       zIndex: 20,
       x: 0,
@@ -2949,6 +3030,12 @@ window.Webflow.push(function () {
   }
 
   window.addEventListener('resize', scheduleFlowerLayout);
+
+  if (!torso.complete) {
+    torso.addEventListener('load', scheduleFlowerLayout, {
+      once: true
+    });
+  }
 
   requestAnimationFrame(checkState);
 
