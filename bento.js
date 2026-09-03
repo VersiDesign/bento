@@ -2612,7 +2612,7 @@ window.Webflow.push(function () {
 
   if (flowerWrap) {
     gsap.set(flowerWrap, {
-      zIndex: 1,
+      zIndex: 2,
       y: 0,
       rotation: 0,
       transformOrigin: '50% 50%'
