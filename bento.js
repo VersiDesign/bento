@@ -2551,7 +2551,7 @@ window.Webflow.push(function () {
 
   const stomp = {
     rotation: 5.5,
-    duration: 0.36
+    duration: 0.72
   };
 
   const flowerSpin = {
@@ -2577,10 +2577,6 @@ window.Webflow.push(function () {
   /* =========================================
      SETUP
   ========================================= */
-
-  const flowerSpinLayers = flowers.map(function (flower) {
-    return flower.firstElementChild || flower;
-  });
 
   const torsoFloatLayers =
     [torso].concat(flowers);
@@ -2633,7 +2629,7 @@ window.Webflow.push(function () {
     });
   });
 
-  gsap.set(flowerSpinLayers, {
+  gsap.set(flowers, {
     rotation: 0,
     transformOrigin: '50% 50%',
     transformBox: 'fill-box'
@@ -2655,30 +2651,21 @@ window.Webflow.push(function () {
   }
 
   function startStomp() {
-    stompTween = gsap.timeline({
-      repeat: -1
+    gsap.set(legs, {
+      rotation: -stomp.rotation
     });
 
-    stompTween
-      .to(legs, {
-        rotation: -stomp.rotation,
-        duration: stomp.duration,
-        ease: 'sine.inOut'
-      })
-      .to(legs, {
-        rotation: stomp.rotation,
-        duration: stomp.duration * 2,
-        ease: 'sine.inOut'
-      })
-      .to(legs, {
-        rotation: -stomp.rotation,
-        duration: stomp.duration * 2,
-        ease: 'sine.inOut'
-      });
+    stompTween = gsap.to(legs, {
+      rotation: stomp.rotation,
+      duration: stomp.duration,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
   }
 
   function startFlowerSpin() {
-    flowerTweens = flowerSpinLayers.map(function (flower, index) {
+    flowerTweens = flowers.map(function (flower, index) {
       return gsap.to(flower, {
         rotation: index % 2 ? -360 : 360,
         duration: flowerSpin.duration + (index * 0.35),
@@ -2697,7 +2684,7 @@ window.Webflow.push(function () {
       rotation: 0
     });
 
-    gsap.set(flowerSpinLayers, {
+    gsap.set(flowers, {
       rotation: 0
     });
   }
