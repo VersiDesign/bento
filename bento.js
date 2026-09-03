@@ -3110,15 +3110,27 @@ window.Webflow.push(function () {
      SNARL SETTINGS
   ========================================= */
 
-  const snarl = {
+  window.bentoNamaSlide3 = window.bentoNamaSlide3 || {};
+
+  const snarlDefaults = {
     minDefaultHold: 1.2,
     maxDefaultHold: 3.4,
-    minSnarlHold: 0.11,
-    maxSnarlHold: 0.24,
+    minSnarlHold: 0.22,
+    maxSnarlHold: 0.38,
     doubleChance: 0.28,
     minDoubleGap: 0.08,
     maxDoubleGap: 0.16
   };
+
+  const snarl =
+    Object.assign(
+      {},
+      snarlDefaults,
+      window.bentoNamaSlide3.snarl || {}
+    );
+
+  window.bentoNamaSlide3.snarl =
+    snarl;
 
 
   /* =========================================
@@ -3207,6 +3219,25 @@ window.Webflow.push(function () {
   let snarlTimeline = null;
   let flowerTweens = [];
   let running = false;
+
+  window.bentoNamaSlide3.restartSnarl = function () {
+    if (snarlTimeline) {
+      snarlTimeline.kill();
+      snarlTimeline = null;
+    }
+
+    showDefaultFace();
+
+    if (!running) return;
+
+    snarlTimeline = createSnarlSequence();
+    snarlTimeline.play(0);
+  };
+
+  window.bentoNamaSlide3.setSnarl = function (settings) {
+    Object.assign(snarl, settings || {});
+    window.bentoNamaSlide3.restartSnarl();
+  };
 
   gsap.set(defaultFace, {
     autoAlpha: 1,
