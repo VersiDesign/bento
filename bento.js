@@ -3520,7 +3520,7 @@ window.Webflow.push(function () {
   const characterFloat = {
     driftX: 12,
     driftY: 18,
-    rotation: 2.5,
+    rotation: 4,
     minDuration: 2.8,
     maxDuration: 4.2
   };
@@ -3528,32 +3528,32 @@ window.Webflow.push(function () {
   const raspberries = [
     {
       el: illo.querySelector('.illo-img.img-b'),
-      xPercent: -34,
-      yPercent: -34,
-      driftX: 15,
-      driftY: 18,
-      rotation: 10
-    },
-    {
-      el: illo.querySelector('.illo-img.img-c'),
-      xPercent: 34,
+      xPercent: -20,
       yPercent: -36,
       driftX: 15,
       driftY: 18,
       rotation: 10
     },
     {
+      el: illo.querySelector('.illo-img.img-c'),
+      xPercent: 33,
+      yPercent: -35,
+      driftX: 15,
+      driftY: 18,
+      rotation: 10
+    },
+    {
       el: illo.querySelector('.illo-img.img-d'),
-      xPercent: 48,
-      yPercent: -2,
+      xPercent: 26,
+      yPercent: -18,
       driftX: 17,
       driftY: 16,
       rotation: 9
     },
     {
       el: illo.querySelector('.illo-img.img-e'),
-      xPercent: 36,
-      yPercent: 32,
+      xPercent: 34,
+      yPercent: 10,
       driftX: 16,
       driftY: 17,
       rotation: 9
