@@ -2564,19 +2564,19 @@ window.Webflow.push(function () {
 
   const flowerLayout = [
     {
-      x: 0.43,
-      y: 0.37,
-      size: 0.085
+      x: 0.395,
+      y: 0.31,
+      size: 1
     },
     {
       x: 0.5,
-      y: 0.34,
-      size: 0.085
+      y: 0.29,
+      size: 1
     },
     {
-      x: 0.57,
-      y: 0.37,
-      size: 0.085
+      x: 0.605,
+      y: 0.31,
+      size: 1
     }
   ];
 
