@@ -2566,17 +2566,17 @@ window.Webflow.push(function () {
     {
       x: 0.395,
       y: 0.31,
-      size: 0.1
+      size: 0.01
     },
     {
       x: 0.5,
       y: 0.29,
-      size: 0.1
+      size: 0.01
     },
     {
       x: 0.605,
       y: 0.31,
-      size: 0.1
+      size: 0.01
     }
   ];
 
