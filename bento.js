@@ -780,6 +780,13 @@ window.Webflow = window.Webflow || [];
 
 window.Webflow.push(function () {
 
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath === '/explore-our-nama') {
+    return;
+  }
+
   const illo = document.querySelector(
     '.products__illo.illo-slide-3'
   );
@@ -3068,6 +3075,383 @@ window.Webflow.push(function () {
 });
 
 /* animation nama slide 1 - end */
+/* animation nama slide 3 */
+
+window.Webflow = window.Webflow || [];
+
+window.Webflow.push(function () {
+
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath !== '/explore-our-nama') return;
+
+  const illo = document.querySelector(
+    '.products__illo.illo-slide-3'
+  );
+
+  if (!illo) return;
+
+  const slider = document.querySelector('.products-slider');
+  const slides = slider ?
+    Array.from(slider.querySelectorAll('.w-slide')) :
+    [];
+  const matchingSlide = slides[2];
+
+  const defaultFace = illo.querySelector('.illo-img.img-a');
+  const snarlFace = illo.querySelector('.illo-img.img-b');
+
+  if (!defaultFace || !snarlFace) {
+    return;
+  }
+
+
+  /* =========================================
+     SNARL SETTINGS
+  ========================================= */
+
+  const snarl = {
+    minDefaultHold: 1.2,
+    maxDefaultHold: 3.4,
+    minSnarlHold: 0.11,
+    maxSnarlHold: 0.24,
+    doubleChance: 0.28,
+    minDoubleGap: 0.08,
+    maxDoubleGap: 0.16
+  };
+
+
+  /* =========================================
+     FLOWER SETTINGS
+  ========================================= */
+
+  const flowers = [
+    {
+      el: illo.querySelector('.illo-img.img-c'),
+      xPercent: 30,
+      yPercent: -42,
+      driftX: 14,
+      driftY: 17,
+      rotation: 10
+    },
+    {
+      el: illo.querySelector('.illo-img.img-d'),
+      xPercent: 45,
+      yPercent: -12,
+      driftX: 16,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-e'),
+      xPercent: 36,
+      yPercent: 20,
+      driftX: 17,
+      driftY: 15,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-f'),
+      xPercent: 0,
+      yPercent: 34,
+      driftX: 14,
+      driftY: 17,
+      rotation: 10
+    },
+    {
+      el: illo.querySelector('.illo-img.img-g'),
+      xPercent: -36,
+      yPercent: 20,
+      driftX: 17,
+      driftY: 15,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-h'),
+      xPercent: -45,
+      yPercent: -12,
+      driftX: 16,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-i'),
+      xPercent: -33,
+      yPercent: -34,
+      driftX: 14,
+      driftY: 17,
+      rotation: 10
+    },
+    {
+      el: illo.querySelector('.illo-img.img-j'),
+      xPercent: -12,
+      yPercent: -46,
+      driftX: 14,
+      driftY: 17,
+      rotation: 10
+    }
+  ].filter(function (flower) {
+    return flower.el;
+  });
+
+  const flowerTiming = {
+    minDuration: 2.4,
+    maxDuration: 3.8
+  };
+
+
+  /* =========================================
+     SETUP
+  ========================================= */
+
+  let snarlTimeline = null;
+  let flowerTweens = [];
+  let running = false;
+
+  gsap.set(defaultFace, {
+    autoAlpha: 1,
+    zIndex: 1
+  });
+
+  gsap.set(snarlFace, {
+    autoAlpha: 0,
+    zIndex: 2
+  });
+
+  flowers.forEach(function (flower, index) {
+    gsap.set(flower.el, {
+      autoAlpha: 1,
+      xPercent: flower.xPercent,
+      yPercent: flower.yPercent,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      zIndex: 3 + index,
+      transformOrigin: '50% 50%'
+    });
+  });
+
+
+  /* =========================================
+     SNARL SEQUENCE
+  ========================================= */
+
+  function showDefaultFace() {
+    gsap.set(defaultFace, {
+      autoAlpha: 1
+    });
+
+    gsap.set(snarlFace, {
+      autoAlpha: 0
+    });
+  }
+
+  function addSnarl(tl) {
+    tl.set(defaultFace, {
+      autoAlpha: 0
+    });
+
+    tl.set(snarlFace, {
+      autoAlpha: 1
+    });
+
+    tl.to({}, {
+      duration: gsap.utils.random(
+        snarl.minSnarlHold,
+        snarl.maxSnarlHold
+      )
+    });
+
+    tl.set(snarlFace, {
+      autoAlpha: 0
+    });
+
+    tl.set(defaultFace, {
+      autoAlpha: 1
+    });
+  }
+
+  function createSnarlSequence() {
+    const tl = gsap.timeline({
+      paused: true,
+      onComplete: function () {
+        if (!running) return;
+
+        snarlTimeline = createSnarlSequence();
+        snarlTimeline.play(0);
+      }
+    });
+
+    tl.to({}, {
+      duration: gsap.utils.random(
+        snarl.minDefaultHold,
+        snarl.maxDefaultHold
+      )
+    });
+
+    addSnarl(tl);
+
+    if (Math.random() < snarl.doubleChance) {
+      tl.to({}, {
+        duration: gsap.utils.random(
+          snarl.minDoubleGap,
+          snarl.maxDoubleGap
+        )
+      });
+
+      addSnarl(tl);
+    }
+
+    return tl;
+  }
+
+
+  /* =========================================
+     FLOWER FLOATING
+  ========================================= */
+
+  function floatFlower(flower, index) {
+
+    if (!running) return;
+
+    flowerTweens[index] = gsap.to(flower.el, {
+      x: gsap.utils.random(
+        -flower.driftX,
+        flower.driftX
+      ),
+
+      y: gsap.utils.random(
+        -flower.driftY,
+        flower.driftY
+      ),
+
+      rotation: gsap.utils.random(
+        -flower.rotation,
+        flower.rotation
+      ),
+
+      duration: gsap.utils.random(
+        flowerTiming.minDuration,
+        flowerTiming.maxDuration
+      ),
+
+      ease: 'sine.inOut',
+
+      onComplete: function () {
+        floatFlower(flower, index);
+      }
+    });
+  }
+
+  function startFlowers() {
+    flowers.forEach(function (flower, index) {
+      floatFlower(flower, index);
+    });
+  }
+
+  function stopFlowers() {
+    flowerTweens.forEach(function (tween) {
+      if (tween) {
+        tween.kill();
+      }
+    });
+
+    flowerTweens = [];
+
+    flowers.forEach(function (flower) {
+      gsap.set(flower.el, {
+        xPercent: flower.xPercent,
+        yPercent: flower.yPercent,
+        x: 0,
+        y: 0,
+        rotation: 0
+      });
+    });
+  }
+
+
+  /* =========================================
+     START
+  ========================================= */
+
+  function startAnimation() {
+
+    if (running) return;
+
+    running = true;
+
+    showDefaultFace();
+
+    if (snarlTimeline) {
+      snarlTimeline.kill();
+    }
+
+    snarlTimeline = createSnarlSequence();
+    snarlTimeline.play(0);
+
+    startFlowers();
+  }
+
+
+  /* =========================================
+     STOP
+  ========================================= */
+
+  function stopAnimation() {
+
+    if (!running) return;
+
+    running = false;
+
+    if (snarlTimeline) {
+      snarlTimeline.kill();
+      snarlTimeline = null;
+    }
+
+    showDefaultFace();
+    stopFlowers();
+  }
+
+
+  /* =========================================
+     WATCH ACTIVE SLIDE
+  ========================================= */
+
+  function checkState() {
+
+    const isActiveIllustration =
+      illo.classList.contains('is-active');
+
+    const isActiveSlide =
+      matchingSlide &&
+      matchingSlide.getAttribute('aria-hidden') !== 'true';
+
+    if (isActiveIllustration || isActiveSlide) {
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
+  }
+
+  const observer = new MutationObserver(checkState);
+
+  observer.observe(illo, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
+  if (matchingSlide) {
+    observer.observe(matchingSlide, {
+      attributes: true,
+      attributeFilter: ['aria-hidden']
+    });
+  }
+
+  requestAnimationFrame(checkState);
+
+});
+
+/* animation nama slide 3 - end */
 /* animation wine slide 1 */
 
 window.Webflow = window.Webflow || [];
