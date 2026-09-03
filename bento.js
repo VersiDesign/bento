@@ -2550,8 +2550,8 @@ window.Webflow.push(function () {
   };
 
   const stomp = {
-    rotation: 5.5,
-    duration: 0.72
+    rotation: 4.2,
+    duration: 0.48
   };
 
   const flowerSpin = {
@@ -2560,15 +2560,15 @@ window.Webflow.push(function () {
 
   const flowerPositions = [
     {
-      xPercent: 0,
+      xPercent: 18,
       yPercent: -20
     },
     {
-      xPercent: -42,
+      xPercent: -24,
       yPercent: 7
     },
     {
-      xPercent: 42,
+      xPercent: 60,
       yPercent: 7
     }
   ];
@@ -2658,7 +2658,7 @@ window.Webflow.push(function () {
     stompTween = gsap.to(legs, {
       rotation: stomp.rotation,
       duration: stomp.duration,
-      ease: 'sine.inOut',
+      ease: 'power2.inOut',
       yoyo: true,
       repeat: -1
     });
