@@ -2505,13 +2505,17 @@ window.Webflow.push(function () {
   const pagePath =
     window.location.pathname.replace(/\/$/, '');
 
-  if (pagePath !== '/explore-our-nama') return;
-
   const illo = document.querySelector(
     '.products__illo.illo-slide-1'
   );
 
   if (!illo) return;
+
+  const isNamaPage =
+    pagePath === '/explore-our-nama' ||
+    !!illo.querySelector('.illo-img.yl-flowers');
+
+  if (!isNamaPage) return;
 
   const slider = document.querySelector('.products-slider');
   const slides = slider ?
@@ -2523,21 +2527,20 @@ window.Webflow.push(function () {
   const torso = illo.querySelector('.illo-img.img-b');
   const bowl = illo.querySelector('.illo-img.img-c');
   const flowerWrap = illo.querySelector('.illo-img.yl-flowers');
-  const flowers = [
-    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-1'),
-    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-2'),
-    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-3')
-  ];
+  const namedFlowers = flowerWrap ? [
+    flowerWrap.querySelector('.yl-flower-img.flower-1'),
+    flowerWrap.querySelector('.yl-flower-img.flower-2'),
+    flowerWrap.querySelector('.yl-flower-img.flower-3')
+  ].filter(function (flower) {
+    return flower;
+  }) : [];
+  const flowers = namedFlowers.length ?
+    namedFlowers :
+    flowerWrap ?
+      Array.from(flowerWrap.querySelectorAll('.yl-flower-img')) :
+      [];
 
-  if (
-    !legs ||
-    !torso ||
-    !bowl ||
-    !flowerWrap ||
-    flowers.some(function (flower) {
-      return !flower;
-    })
-  ) {
+  if (!legs || !torso || !bowl) {
     return;
   }
 
@@ -2566,15 +2569,41 @@ window.Webflow.push(function () {
   ========================================= */
 
   const torsoFloatLayers =
-    [torso, flowerWrap];
+    [torso].concat(flowerWrap ? [flowerWrap] : []);
 
   const visibleLayers =
-    [legs, torso, bowl, flowerWrap].concat(flowers);
+    [legs, torso, bowl]
+      .concat(flowerWrap ? [flowerWrap] : [])
+      .concat(flowers);
 
   let torsoTween = null;
   let stompTween = null;
   let flowerTweens = [];
   let running = false;
+
+  function syncFlowerWrapToTorso() {
+    if (!flowerWrap) return;
+
+    const illoRect =
+      illo.getBoundingClientRect();
+    const torsoRect =
+      torso.getBoundingClientRect();
+
+    if (!illoRect.width || !torsoRect.width) return;
+
+    gsap.set(flowerWrap, {
+      position: 'absolute',
+      left: torsoRect.left - illoRect.left,
+      top: torsoRect.top - illoRect.top,
+      width: torsoRect.width,
+      height: torsoRect.height,
+      right: 'auto',
+      bottom: 'auto',
+      x: 0
+    });
+  }
+
+  syncFlowerWrapToTorso();
 
   gsap.set(visibleLayers, {
     autoAlpha: 1,
@@ -2601,12 +2630,14 @@ window.Webflow.push(function () {
     transformOrigin: '50% 50%'
   });
 
-  gsap.set(flowerWrap, {
-    zIndex: 4,
-    y: 0,
-    rotation: 0,
-    transformOrigin: '50% 50%'
-  });
+  if (flowerWrap) {
+    gsap.set(flowerWrap, {
+      zIndex: 4,
+      y: 0,
+      rotation: 0,
+      transformOrigin: '50% 50%'
+    });
+  }
 
   gsap.set(flowers, {
     rotation: 0,
@@ -2680,6 +2711,7 @@ window.Webflow.push(function () {
     running = true;
 
     resetMotion();
+    syncFlowerWrapToTorso();
     startTorsoFloat();
     startStomp();
     startFlowerSpin();
@@ -2750,6 +2782,13 @@ window.Webflow.push(function () {
     });
   }
 
+  window.addEventListener('resize', function () {
+    if (!running) return;
+
+    resetMotion();
+    syncFlowerWrapToTorso();
+  });
+
   requestAnimationFrame(checkState);
 
 });
@@ -2764,13 +2803,18 @@ window.Webflow.push(function () {
   const pagePath =
     window.location.pathname.replace(/\/$/, '');
 
-  if (pagePath === '/explore-our-nama') return;
-
   const illo = document.querySelector(
     '.products__illo.illo-slide-1'
   );
 
   if (!illo) return;
+
+  if (
+    pagePath === '/explore-our-nama' ||
+    illo.querySelector('.illo-img.yl-flowers')
+  ) {
+    return;
+  }
 
   const frameA = illo.querySelector('.illo-img.img-a');
   const frameB = illo.querySelector('.illo-img.img-b');
