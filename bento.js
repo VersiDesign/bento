@@ -2527,25 +2527,21 @@ window.Webflow.push(function () {
   const torso = illo.querySelector('.illo-img.img-b');
   const bowl = illo.querySelector('.illo-img.img-c');
   const flowerWrap = illo.querySelector('.illo-img.yl-flowers');
-  const namedFlowers = flowerWrap ? [
+  const namedFlowerTemplates = flowerWrap ? [
     flowerWrap.querySelector('.yl-flower-img.flower-1'),
     flowerWrap.querySelector('.yl-flower-img.flower-2'),
     flowerWrap.querySelector('.yl-flower-img.flower-3')
   ].filter(function (flower) {
     return flower;
   }) : [];
-  const flowers = namedFlowers.length ?
-    namedFlowers :
+  const flowerTemplates = namedFlowerTemplates.length ?
+    namedFlowerTemplates :
     flowerWrap ?
       Array.from(flowerWrap.querySelectorAll('.yl-flower-img')) :
       [];
 
   if (!legs || !torso || !bowl) {
     return;
-  }
-
-  if (flowerWrap && flowerWrap.parentElement !== document.body) {
-    document.body.appendChild(flowerWrap);
   }
 
   /* =========================================
@@ -2569,17 +2565,17 @@ window.Webflow.push(function () {
   const flowerLayout = [
     {
       x: 0.43,
-      y: 0.35,
+      y: 0.37,
       size: 0.085
     },
     {
       x: 0.5,
-      y: 0.35,
+      y: 0.34,
       size: 0.085
     },
     {
       x: 0.57,
-      y: 0.35,
+      y: 0.37,
       size: 0.085
     }
   ];
@@ -2588,6 +2584,32 @@ window.Webflow.push(function () {
   /* =========================================
      SETUP
   ========================================= */
+
+  let runtimeFlowerLayer = null;
+  let flowers = [];
+
+  if (flowerTemplates.length) {
+    runtimeFlowerLayer = document.createElement('div');
+    runtimeFlowerLayer.className = 'nama-runtime-flowers';
+    document.body.appendChild(runtimeFlowerLayer);
+
+    flowers = flowerLayout.map(function (layout, index) {
+      const template =
+        flowerTemplates[index] || flowerTemplates[0];
+
+      const flower =
+        template.cloneNode(true);
+
+      flower.classList.add(
+        'nama-runtime-flower',
+        'runtime-flower-' + (index + 1)
+      );
+
+      runtimeFlowerLayer.appendChild(flower);
+
+      return flower;
+    });
+  }
 
   const torsoFloatLayers =
     [torso].concat(flowers);
@@ -2680,6 +2702,19 @@ window.Webflow.push(function () {
   if (flowerWrap) {
     gsap.set(flowerWrap, {
       autoAlpha: 0,
+      display: 'none'
+    });
+  }
+
+  if (runtimeFlowerLayer) {
+    gsap.set(runtimeFlowerLayer, {
+      autoAlpha: 0,
+      position: 'fixed',
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+      backgroundColor: 'transparent',
       zIndex: 20,
       x: 0,
       y: 0,
@@ -2769,8 +2804,8 @@ window.Webflow.push(function () {
       autoAlpha: 1
     });
 
-    if (flowerWrap) {
-      gsap.set(flowerWrap, {
+    if (runtimeFlowerLayer) {
+      gsap.set(runtimeFlowerLayer, {
         autoAlpha: 1
       });
     }
@@ -2821,8 +2856,8 @@ window.Webflow.push(function () {
       autoAlpha: 0
     });
 
-    if (flowerWrap) {
-      gsap.set(flowerWrap, {
+    if (runtimeFlowerLayer) {
+      gsap.set(runtimeFlowerLayer, {
         autoAlpha: 0
       });
     }
