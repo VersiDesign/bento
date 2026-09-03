@@ -2522,16 +2522,18 @@ window.Webflow.push(function () {
   const legs = illo.querySelector('.illo-img.img-a');
   const torso = illo.querySelector('.illo-img.img-b');
   const bowl = illo.querySelector('.illo-img.img-c');
+  const flowerWrap = illo.querySelector('.illo-img.yl-flowers');
   const flowers = [
-    illo.querySelector('.illo-img.img-d.ly-flower-1'),
-    illo.querySelector('.illo-img.img-d.ly-flower-2'),
-    illo.querySelector('.illo-img.img-d.ly-flower-3')
+    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-1'),
+    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-2'),
+    flowerWrap && flowerWrap.querySelector('.yl-flower-img.flower-3')
   ];
 
   if (
     !legs ||
     !torso ||
     !bowl ||
+    !flowerWrap ||
     flowers.some(function (flower) {
       return !flower;
     })
@@ -2563,15 +2565,11 @@ window.Webflow.push(function () {
      SETUP
   ========================================= */
 
-  const flowerSpinLayers = flowers.map(function (flower) {
-    return flower.firstElementChild || flower;
-  });
-
   const torsoFloatLayers =
-    [torso].concat(flowers);
+    [torso, flowerWrap];
 
   const visibleLayers =
-    [legs, torso, bowl].concat(flowers);
+    [legs, torso, bowl, flowerWrap].concat(flowers);
 
   let torsoTween = null;
   let stompTween = null;
@@ -2603,16 +2601,14 @@ window.Webflow.push(function () {
     transformOrigin: '50% 50%'
   });
 
-  flowers.forEach(function (flower) {
-    gsap.set(flower, {
-      zIndex: 4,
-      y: 0,
-      rotation: 0,
-      transformOrigin: '50% 50%'
-    });
+  gsap.set(flowerWrap, {
+    zIndex: 4,
+    y: 0,
+    rotation: 0,
+    transformOrigin: '50% 50%'
   });
 
-  gsap.set(flowerSpinLayers, {
+  gsap.set(flowers, {
     rotation: 0,
     transformOrigin: '50% 50%',
     transformBox: 'fill-box'
@@ -2648,7 +2644,7 @@ window.Webflow.push(function () {
   }
 
   function startFlowerSpin() {
-    flowerTweens = flowerSpinLayers.map(function (flower, index) {
+    flowerTweens = flowers.map(function (flower, index) {
       return gsap.to(flower, {
         rotation: index % 2 ? -360 : 360,
         duration: flowerSpin.duration + (index * 0.35),
@@ -2667,7 +2663,7 @@ window.Webflow.push(function () {
       rotation: 0
     });
 
-    gsap.set(flowerSpinLayers, {
+    gsap.set(flowers, {
       rotation: 0
     });
   }
