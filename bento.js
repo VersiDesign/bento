@@ -2525,8 +2525,6 @@ window.Webflow.push(function () {
 
   const legs = illo.querySelector('.illo-img.img-a');
   const torso = illo.querySelector('.illo-img.img-b');
-  const torsoImage =
-    torso && (torso.querySelector('img, svg') || torso.firstElementChild);
   const bowl = illo.querySelector('.illo-img.img-c');
   const flowerWrap = illo.querySelector('.illo-img.yl-flowers');
   const namedFlowers = flowerWrap ? [
@@ -2587,32 +2585,21 @@ window.Webflow.push(function () {
   function syncFlowerWrapBox() {
     if (!flowerWrap) return;
 
-    const mediaRect =
-      (torsoImage || torso).getBoundingClientRect();
-    const parent =
-      flowerWrap.offsetParent || illo;
-    const parentRect =
-      parent.getBoundingClientRect();
-
-    if (!mediaRect.width || !mediaRect.height) return;
-
-    const squareSize =
-      Math.min(mediaRect.width, mediaRect.height);
-
-    const squareLeft =
-      mediaRect.left + ((mediaRect.width - squareSize) / 2);
-
-    const squareTop =
-      mediaRect.top + ((mediaRect.height - squareSize) / 2);
+    const torsoStyle =
+      window.getComputedStyle(torso);
 
     gsap.set(flowerWrap, {
-      position: 'absolute',
-      left: squareLeft - parentRect.left,
-      top: squareTop - parentRect.top,
-      width: squareSize,
-      height: squareSize,
-      right: 'auto',
-      bottom: 'auto',
+      position: torsoStyle.position,
+      left: torsoStyle.left,
+      top: torsoStyle.top,
+      right: torsoStyle.right,
+      bottom: torsoStyle.bottom,
+      width: torsoStyle.width,
+      height: torsoStyle.height,
+      minWidth: torsoStyle.minWidth,
+      minHeight: torsoStyle.minHeight,
+      maxWidth: torsoStyle.maxWidth,
+      maxHeight: torsoStyle.maxHeight,
       x: 0
     });
   }
