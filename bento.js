@@ -2544,8 +2544,8 @@ window.Webflow.push(function () {
     return;
   }
 
-  if (flowerWrap && flowerWrap.parentElement !== torso) {
-    torso.appendChild(flowerWrap);
+  if (flowerWrap && flowerWrap.parentElement !== document.body) {
+    document.body.appendChild(flowerWrap);
   }
 
   /* =========================================
@@ -2566,23 +2566,91 @@ window.Webflow.push(function () {
     duration: 2.8
   };
 
+  const flowerLayout = [
+    {
+      x: 0.43,
+      y: 0.35,
+      size: 0.085
+    },
+    {
+      x: 0.5,
+      y: 0.35,
+      size: 0.085
+    },
+    {
+      x: 0.57,
+      y: 0.35,
+      size: 0.085
+    }
+  ];
+
 
   /* =========================================
      SETUP
   ========================================= */
 
   const torsoFloatLayers =
-    [torso];
+    [torso].concat(flowers);
 
   const visibleLayers =
-    [legs, torso, bowl]
-      .concat(flowerWrap ? [flowerWrap] : [])
-      .concat(flowers);
+    [legs, torso, bowl];
 
   let torsoTween = null;
   let stompTween = null;
   let flowerTweens = [];
   let running = false;
+  let flowerLayoutFrame = null;
+  let flowerLayoutTimer = null;
+
+  function positionFlowersOnTorso() {
+    if (!flowers.length) return;
+
+    const torsoRect =
+      torso.getBoundingClientRect();
+    const torsoY =
+      parseFloat(gsap.getProperty(torso, 'y')) || 0;
+
+    if (!torsoRect.width || !torsoRect.height) return;
+
+    flowers.forEach(function (flower, index) {
+      const layout =
+        flowerLayout[index] || flowerLayout[0];
+
+      const size =
+        torsoRect.width * layout.size;
+
+      gsap.set(flower, {
+        position: 'fixed',
+        left: torsoRect.left + (torsoRect.width * layout.x),
+        top: torsoRect.top - torsoY + (torsoRect.height * layout.y),
+        width: size,
+        height: size,
+        xPercent: -50,
+        yPercent: -50,
+        zIndex: 20
+      });
+    });
+  }
+
+  function scheduleFlowerLayout() {
+    if (!flowers.length) return;
+
+    if (flowerLayoutFrame) {
+      cancelAnimationFrame(flowerLayoutFrame);
+    }
+
+    flowerLayoutFrame = requestAnimationFrame(function () {
+      flowerLayoutFrame = null;
+      positionFlowersOnTorso();
+    });
+
+    clearTimeout(flowerLayoutTimer);
+
+    flowerLayoutTimer = setTimeout(function () {
+      positionFlowersOnTorso();
+      flowerLayoutTimer = null;
+    }, 120);
+  }
 
   gsap.set(visibleLayers, {
     autoAlpha: 1,
@@ -2611,8 +2679,8 @@ window.Webflow.push(function () {
 
   if (flowerWrap) {
     gsap.set(flowerWrap, {
-      autoAlpha: 1,
-      zIndex: 4,
+      autoAlpha: 0,
+      zIndex: 20,
       x: 0,
       y: 0,
       rotation: 0,
@@ -2621,10 +2689,13 @@ window.Webflow.push(function () {
   }
 
   gsap.set(flowers, {
+    autoAlpha: 0,
     rotation: 0,
     transformOrigin: '50% 50%',
     transformBox: 'fill-box'
   });
+
+  positionFlowersOnTorso();
 
 
   /* =========================================
@@ -2692,6 +2763,17 @@ window.Webflow.push(function () {
     running = true;
 
     resetMotion();
+    positionFlowersOnTorso();
+
+    gsap.set(flowers, {
+      autoAlpha: 1
+    });
+
+    if (flowerWrap) {
+      gsap.set(flowerWrap, {
+        autoAlpha: 1
+      });
+    }
 
     startTorsoFloat();
     startStomp();
@@ -2725,7 +2807,25 @@ window.Webflow.push(function () {
 
     flowerTweens = [];
 
+    if (flowerLayoutFrame) {
+      cancelAnimationFrame(flowerLayoutFrame);
+      flowerLayoutFrame = null;
+    }
+
+    clearTimeout(flowerLayoutTimer);
+    flowerLayoutTimer = null;
+
     resetMotion();
+
+    gsap.set(flowers, {
+      autoAlpha: 0
+    });
+
+    if (flowerWrap) {
+      gsap.set(flowerWrap, {
+        autoAlpha: 0
+      });
+    }
   }
 
 
@@ -2762,6 +2862,16 @@ window.Webflow.push(function () {
       attributeFilter: ['aria-hidden']
     });
   }
+
+  if ('ResizeObserver' in window) {
+    const resizeObserver = new ResizeObserver(function () {
+      scheduleFlowerLayout();
+    });
+
+    resizeObserver.observe(torso);
+  }
+
+  window.addEventListener('resize', scheduleFlowerLayout);
 
   requestAnimationFrame(checkState);
 
