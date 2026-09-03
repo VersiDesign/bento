@@ -3113,11 +3113,11 @@ window.Webflow.push(function () {
   window.bentoNamaSlide3 = window.bentoNamaSlide3 || {};
 
   const snarlDefaults = {
-    minDefaultHold: 1.2,
+    minDefaultHold: 2,
     maxDefaultHold: 3.4,
-    minSnarlHold: 0.22,
-    maxSnarlHold: 0.38,
-    doubleChance: 0.28,
+    minSnarlHold: 0.5,
+    maxSnarlHold: 1.5,
+    doubleChance: 0,
     minDoubleGap: 0.08,
     maxDoubleGap: 0.16
   };
@@ -3140,7 +3140,7 @@ window.Webflow.push(function () {
   const flowers = [
     {
       el: illo.querySelector('.illo-img.img-c'),
-      xPercent: 30,
+      xPercent: 20,
       yPercent: -42,
       driftX: 14,
       driftY: 17,
@@ -3149,55 +3149,55 @@ window.Webflow.push(function () {
     {
       el: illo.querySelector('.illo-img.img-d'),
       xPercent: 45,
-      yPercent: -12,
+      yPercent: -5,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
     {
       el: illo.querySelector('.illo-img.img-e'),
-      xPercent: 36,
-      yPercent: 20,
+      xPercent: 35,
+      yPercent: 23,
       driftX: 17,
       driftY: 15,
       rotation: 9
     },
     {
       el: illo.querySelector('.illo-img.img-f'),
-      xPercent: 0,
-      yPercent: 34,
+      xPercent: 3,
+      yPercent: 39,
       driftX: 14,
       driftY: 17,
       rotation: 10
     },
     {
       el: illo.querySelector('.illo-img.img-g'),
-      xPercent: -36,
-      yPercent: 20,
+      xPercent: -37,
+      yPercent: 34,
       driftX: 17,
       driftY: 15,
       rotation: 9
     },
     {
       el: illo.querySelector('.illo-img.img-h'),
-      xPercent: -45,
-      yPercent: -12,
+      xPercent: -40,
+      yPercent: -2,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
     {
       el: illo.querySelector('.illo-img.img-i'),
-      xPercent: -33,
-      yPercent: -34,
+      xPercent: -43,
+      yPercent: -25,
       driftX: 14,
       driftY: 17,
       rotation: 10
     },
     {
       el: illo.querySelector('.illo-img.img-j'),
-      xPercent: -12,
-      yPercent: -46,
+      xPercent: -21,
+      yPercent: -39,
       driftX: 14,
       driftY: 17,
       rotation: 10
@@ -3241,12 +3241,12 @@ window.Webflow.push(function () {
 
   gsap.set(defaultFace, {
     autoAlpha: 1,
-    zIndex: 1
+    zIndex: 2
   });
 
   gsap.set(snarlFace, {
     autoAlpha: 0,
-    zIndex: 2
+    zIndex: 3
   });
 
   flowers.forEach(function (flower, index) {
@@ -3257,7 +3257,7 @@ window.Webflow.push(function () {
       x: 0,
       y: 0,
       rotation: 0,
-      zIndex: 3 + index,
+      zIndex: 1,
       transformOrigin: '50% 50%'
     });
   });
