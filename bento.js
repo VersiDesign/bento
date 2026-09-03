@@ -2585,21 +2585,27 @@ window.Webflow.push(function () {
   function syncFlowerWrapBox() {
     if (!flowerWrap) return;
 
-    const torsoStyle =
-      window.getComputedStyle(torso);
+    const torsoRect =
+      torso.getBoundingClientRect();
+    const parent =
+      flowerWrap.offsetParent || illo;
+    const parentRect =
+      parent.getBoundingClientRect();
+
+    if (!torsoRect.width) return;
 
     gsap.set(flowerWrap, {
-      position: torsoStyle.position,
-      left: torsoStyle.left,
-      top: torsoStyle.top,
-      right: torsoStyle.right,
-      bottom: torsoStyle.bottom,
-      width: torsoStyle.width,
-      height: torsoStyle.height,
-      minWidth: torsoStyle.minWidth,
-      minHeight: torsoStyle.minHeight,
-      maxWidth: torsoStyle.maxWidth,
-      maxHeight: torsoStyle.maxHeight,
+      position: 'absolute',
+      left: torsoRect.left - parentRect.left,
+      top: torsoRect.top - parentRect.top,
+      right: 'auto',
+      bottom: 'auto',
+      width: torsoRect.width,
+      height: torsoRect.width,
+      minWidth: 0,
+      minHeight: 0,
+      maxWidth: 'none',
+      maxHeight: 'none',
       x: 0
     });
   }
