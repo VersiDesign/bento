@@ -2544,8 +2544,8 @@ window.Webflow.push(function () {
     return;
   }
 
-  if (flowerWrap && flowerWrap.parentElement !== document.body) {
-    document.body.appendChild(flowerWrap);
+  if (flowerWrap && flowerWrap.parentElement !== torso) {
+    torso.appendChild(flowerWrap);
   }
 
   /* =========================================
@@ -2572,7 +2572,7 @@ window.Webflow.push(function () {
   ========================================= */
 
   const torsoFloatLayers =
-    [torso].concat(flowerWrap ? [flowerWrap] : []);
+    [torso];
 
   const visibleLayers =
     [legs, torso, bowl]
@@ -2583,56 +2583,6 @@ window.Webflow.push(function () {
   let stompTween = null;
   let flowerTweens = [];
   let running = false;
-  let flowerBoxFrame = null;
-  let flowerBoxTimer = null;
-
-  function syncFlowerWrapBox() {
-    if (!flowerWrap) return;
-
-    const torsoRect =
-      torso.getBoundingClientRect();
-    const torsoY =
-      parseFloat(gsap.getProperty(torso, 'y')) || 0;
-
-    if (!torsoRect.width || !torsoRect.height) return;
-
-    gsap.set(flowerWrap, {
-      position: 'fixed',
-      left: torsoRect.left,
-      top: torsoRect.top - torsoY,
-      right: 'auto',
-      bottom: 'auto',
-      width: torsoRect.width,
-      height: torsoRect.height,
-      minWidth: 0,
-      minHeight: 0,
-      maxWidth: 'none',
-      maxHeight: 'none',
-      x: 0
-    });
-  }
-
-  function scheduleFlowerWrapBoxSync() {
-    if (!flowerWrap) return;
-
-    if (flowerBoxFrame) {
-      cancelAnimationFrame(flowerBoxFrame);
-    }
-
-    flowerBoxFrame = requestAnimationFrame(function () {
-      flowerBoxFrame = null;
-      syncFlowerWrapBox();
-    });
-
-    clearTimeout(flowerBoxTimer);
-
-    flowerBoxTimer = setTimeout(function () {
-      syncFlowerWrapBox();
-      flowerBoxTimer = null;
-    }, 120);
-  }
-
-  syncFlowerWrapBox();
 
   gsap.set(visibleLayers, {
     autoAlpha: 1,
@@ -2661,8 +2611,9 @@ window.Webflow.push(function () {
 
   if (flowerWrap) {
     gsap.set(flowerWrap, {
-      autoAlpha: 0,
-      zIndex: 20,
+      autoAlpha: 1,
+      zIndex: 4,
+      x: 0,
       y: 0,
       rotation: 0,
       transformOrigin: '50% 50%'
@@ -2740,14 +2691,7 @@ window.Webflow.push(function () {
 
     running = true;
 
-    syncFlowerWrapBox();
     resetMotion();
-
-    if (flowerWrap) {
-      gsap.set(flowerWrap, {
-        autoAlpha: 1
-      });
-    }
 
     startTorsoFloat();
     startStomp();
@@ -2761,15 +2705,7 @@ window.Webflow.push(function () {
 
   function stopAnimation() {
 
-    if (!running) {
-      if (flowerWrap) {
-        gsap.set(flowerWrap, {
-          autoAlpha: 0
-        });
-      }
-
-      return;
-    }
+    if (!running) return;
 
     running = false;
 
@@ -2789,21 +2725,7 @@ window.Webflow.push(function () {
 
     flowerTweens = [];
 
-    if (flowerBoxFrame) {
-      cancelAnimationFrame(flowerBoxFrame);
-      flowerBoxFrame = null;
-    }
-
-    clearTimeout(flowerBoxTimer);
-    flowerBoxTimer = null;
-
     resetMotion();
-
-    if (flowerWrap) {
-      gsap.set(flowerWrap, {
-        autoAlpha: 0
-      });
-    }
   }
 
 
@@ -2840,16 +2762,6 @@ window.Webflow.push(function () {
       attributeFilter: ['aria-hidden']
     });
   }
-
-  if (flowerWrap && 'ResizeObserver' in window) {
-    const resizeObserver = new ResizeObserver(function () {
-      scheduleFlowerWrapBoxSync();
-    });
-
-    resizeObserver.observe(torso);
-  }
-
-  window.addEventListener('resize', scheduleFlowerWrapBoxSync);
 
   requestAnimationFrame(checkState);
 
