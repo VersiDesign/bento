@@ -2544,6 +2544,10 @@ window.Webflow.push(function () {
     return;
   }
 
+  if (flowerWrap && flowerWrap.parentElement !== document.body) {
+    document.body.appendChild(flowerWrap);
+  }
+
   /* =========================================
      MOTION SETTINGS
   ========================================= */
@@ -2587,21 +2591,19 @@ window.Webflow.push(function () {
 
     const torsoRect =
       torso.getBoundingClientRect();
-    const parent =
-      flowerWrap.offsetParent || illo;
-    const parentRect =
-      parent.getBoundingClientRect();
+    const torsoY =
+      parseFloat(gsap.getProperty(torso, 'y')) || 0;
 
-    if (!torsoRect.width) return;
+    if (!torsoRect.width || !torsoRect.height) return;
 
     gsap.set(flowerWrap, {
-      position: 'absolute',
-      left: torsoRect.left - parentRect.left,
-      top: torsoRect.top - parentRect.top,
+      position: 'fixed',
+      left: torsoRect.left,
+      top: torsoRect.top - torsoY,
       right: 'auto',
       bottom: 'auto',
       width: torsoRect.width,
-      height: torsoRect.width,
+      height: torsoRect.height,
       minWidth: 0,
       minHeight: 0,
       maxWidth: 'none',
@@ -2659,7 +2661,8 @@ window.Webflow.push(function () {
 
   if (flowerWrap) {
     gsap.set(flowerWrap, {
-      zIndex: 4,
+      autoAlpha: 0,
+      zIndex: 20,
       y: 0,
       rotation: 0,
       transformOrigin: '50% 50%'
@@ -2739,6 +2742,13 @@ window.Webflow.push(function () {
 
     syncFlowerWrapBox();
     resetMotion();
+
+    if (flowerWrap) {
+      gsap.set(flowerWrap, {
+        autoAlpha: 1
+      });
+    }
+
     startTorsoFloat();
     startStomp();
     startFlowerSpin();
@@ -2751,7 +2761,15 @@ window.Webflow.push(function () {
 
   function stopAnimation() {
 
-    if (!running) return;
+    if (!running) {
+      if (flowerWrap) {
+        gsap.set(flowerWrap, {
+          autoAlpha: 0
+        });
+      }
+
+      return;
+    }
 
     running = false;
 
@@ -2780,6 +2798,12 @@ window.Webflow.push(function () {
     flowerBoxTimer = null;
 
     resetMotion();
+
+    if (flowerWrap) {
+      gsap.set(flowerWrap, {
+        autoAlpha: 0
+      });
+    }
   }
 
 
