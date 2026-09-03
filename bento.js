@@ -2496,11 +2496,308 @@ window.Webflow.push(function () {
 });
 
 /* illustration sliders - end */
+/* animation nama slide 1 */
+
+window.Webflow = window.Webflow || [];
+
+window.Webflow.push(function () {
+
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath !== '/explore-our-nama') return;
+
+  const illo = document.querySelector(
+    '.products__illo.illo-slide-1'
+  );
+
+  if (!illo) return;
+
+  const slider = document.querySelector('.products-slider');
+  const slides = slider ?
+    Array.from(slider.querySelectorAll('.w-slide')) :
+    [];
+  const matchingSlide = slides[0];
+
+  const legs = illo.querySelector('.illo-img.img-a');
+  const torso = illo.querySelector('.illo-img.img-b');
+  const bowl = illo.querySelector('.illo-img.img-c');
+  let flowers = Array.from(
+    illo.querySelectorAll('.illo-img.img-d')
+  );
+
+  if (!legs || !torso || !bowl || !flowers.length) return;
+
+  while (flowers.length < 3) {
+    const flowerClone =
+      flowers[0].cloneNode(true);
+
+    flowerClone.classList.add('is-generated-flower');
+    illo.appendChild(flowerClone);
+    flowers.push(flowerClone);
+  }
+
+  flowers = flowers.slice(0, 3);
+
+
+  /* =========================================
+     MOTION SETTINGS
+  ========================================= */
+
+  const torsoFloat = {
+    y: -7,
+    duration: 1.15
+  };
+
+  const stomp = {
+    rotation: 5.5,
+    duration: 0.34
+  };
+
+  const flowerSpin = {
+    duration: 2.8
+  };
+
+  const flowerPositions = [
+    {
+      xPercent: 0,
+      yPercent: -20
+    },
+    {
+      xPercent: -42,
+      yPercent: 7
+    },
+    {
+      xPercent: 42,
+      yPercent: 7
+    }
+  ];
+
+
+  /* =========================================
+     SETUP
+  ========================================= */
+
+  const flowerSpinLayers = flowers.map(function (flower) {
+    return flower.firstElementChild || flower;
+  });
+
+  const torsoFloatLayers =
+    [torso].concat(flowers);
+
+  const visibleLayers =
+    [legs, torso, bowl].concat(flowers);
+
+  let torsoTween = null;
+  let stompTimeline = null;
+  let flowerTweens = [];
+  let running = false;
+
+  gsap.set(visibleLayers, {
+    autoAlpha: 1,
+    force3D: true
+  });
+
+  gsap.set(legs, {
+    zIndex: 1,
+    rotation: 0,
+    transformOrigin: '50% 50%'
+  });
+
+  gsap.set(torso, {
+    zIndex: 2,
+    y: 0,
+    transformOrigin: '50% 50%'
+  });
+
+  gsap.set(bowl, {
+    zIndex: 3,
+    x: 0,
+    y: 0,
+    rotation: 0,
+    transformOrigin: '50% 50%'
+  });
+
+  flowers.forEach(function (flower, index) {
+    const position =
+      flowerPositions[index];
+
+    gsap.set(flower, {
+      zIndex: 4,
+      xPercent: position.xPercent,
+      yPercent: position.yPercent,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      transformOrigin: '50% 50%'
+    });
+  });
+
+  gsap.set(flowerSpinLayers, {
+    rotation: 0,
+    transformOrigin: '50% 50%'
+  });
+
+
+  /* =========================================
+     MOTION
+  ========================================= */
+
+  function startTorsoFloat() {
+    torsoTween = gsap.to(torsoFloatLayers, {
+      y: torsoFloat.y,
+      duration: torsoFloat.duration,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+  }
+
+  function startStomp() {
+    stompTimeline = gsap.timeline({
+      repeat: -1
+    });
+
+    stompTimeline
+      .to(legs, {
+        rotation: -stomp.rotation,
+        duration: stomp.duration,
+        ease: 'sine.inOut'
+      })
+      .to(legs, {
+        rotation: stomp.rotation,
+        duration: stomp.duration * 2,
+        ease: 'sine.inOut'
+      })
+      .to(legs, {
+        rotation: 0,
+        duration: stomp.duration,
+        ease: 'sine.inOut'
+      });
+  }
+
+  function startFlowerSpin() {
+    flowerTweens = flowerSpinLayers.map(function (flower, index) {
+      return gsap.to(flower, {
+        rotation: index % 2 ? -360 : 360,
+        duration: flowerSpin.duration + (index * 0.35),
+        ease: 'none',
+        repeat: -1
+      });
+    });
+  }
+
+  function resetMotion() {
+    gsap.set(torsoFloatLayers, {
+      y: 0
+    });
+
+    gsap.set(legs, {
+      rotation: 0
+    });
+
+    gsap.set(flowerSpinLayers, {
+      rotation: 0
+    });
+  }
+
+
+  /* =========================================
+     START
+  ========================================= */
+
+  function startAnimation() {
+
+    if (running) return;
+
+    running = true;
+
+    resetMotion();
+    startTorsoFloat();
+    startStomp();
+    startFlowerSpin();
+  }
+
+
+  /* =========================================
+     STOP
+  ========================================= */
+
+  function stopAnimation() {
+
+    if (!running) return;
+
+    running = false;
+
+    if (torsoTween) {
+      torsoTween.kill();
+      torsoTween = null;
+    }
+
+    if (stompTimeline) {
+      stompTimeline.kill();
+      stompTimeline = null;
+    }
+
+    flowerTweens.forEach(function (tween) {
+      tween.kill();
+    });
+
+    flowerTweens = [];
+
+    resetMotion();
+  }
+
+
+  /* =========================================
+     WATCH ACTIVE SLIDE
+  ========================================= */
+
+  function checkState() {
+
+    const isActiveIllustration =
+      illo.classList.contains('is-active');
+
+    const isActiveSlide =
+      matchingSlide &&
+      matchingSlide.getAttribute('aria-hidden') !== 'true';
+
+    if (isActiveIllustration || isActiveSlide) {
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
+  }
+
+  const observer = new MutationObserver(checkState);
+
+  observer.observe(illo, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
+  if (matchingSlide) {
+    observer.observe(matchingSlide, {
+      attributes: true,
+      attributeFilter: ['aria-hidden']
+    });
+  }
+
+  requestAnimationFrame(checkState);
+
+});
+
+/* animation nama slide 1 - end */
 /* animation wine slide 1 */
 
 window.Webflow = window.Webflow || [];
 
 window.Webflow.push(function () {
+
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath === '/explore-our-nama') return;
 
   const illo = document.querySelector(
     '.products__illo.illo-slide-1'
