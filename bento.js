@@ -2586,7 +2586,53 @@ window.Webflow.push(function () {
   ========================================= */
 
   let runtimeFlowerLayer = null;
+  let runtimeLegsLayer = null;
+  let legsMotionTarget = legs;
   let flowers = [];
+
+  function createRuntimeImageLayer(source, className) {
+    const sourceImage =
+      source.matches('img') ?
+        source :
+        source.querySelector('img');
+
+    if (!sourceImage) return null;
+
+    const layer =
+      document.createElement('div');
+
+    const image =
+      document.createElement('img');
+
+    layer.className =
+      className;
+
+    image.src =
+      sourceImage.currentSrc || sourceImage.src;
+
+    if (sourceImage.srcset) {
+      image.srcset =
+        sourceImage.srcset;
+    }
+
+    if (sourceImage.sizes) {
+      image.sizes =
+        sourceImage.sizes;
+    }
+
+    image.alt =
+      sourceImage.alt || '';
+
+    image.decoding =
+      'async';
+
+    image.loading =
+      'eager';
+
+    layer.appendChild(image);
+
+    return layer;
+  }
 
   function createFlowerInstance(template, index) {
     const sourceImage =
@@ -2653,11 +2699,19 @@ window.Webflow.push(function () {
     });
   }
 
+  runtimeLegsLayer =
+    createRuntimeImageLayer(legs, 'nama-runtime-legs');
+
+  if (runtimeLegsLayer) {
+    illo.appendChild(runtimeLegsLayer);
+    legsMotionTarget = runtimeLegsLayer;
+  }
+
   const torsoFloatLayers =
     [torso].concat(runtimeFlowerLayer ? [runtimeFlowerLayer] : []);
 
   const visibleLayers =
-    [legs, torso, bowl];
+    [legsMotionTarget, torso, bowl];
 
   let torsoTween = null;
   let stompTween = null;
@@ -2802,7 +2856,14 @@ window.Webflow.push(function () {
     force3D: true
   });
 
-  gsap.set(legs, {
+  if (runtimeLegsLayer) {
+    gsap.set(legs, {
+      autoAlpha: 0,
+      rotation: 0
+    });
+  }
+
+  gsap.set(legsMotionTarget, {
     zIndex: 1,
     rotation: 0,
     transformOrigin: '50% 50%'
@@ -2871,11 +2932,11 @@ window.Webflow.push(function () {
   }
 
   function startStomp() {
-    gsap.set(legs, {
+    gsap.set(legsMotionTarget, {
       rotation: -stomp.rotation
     });
 
-    stompTween = gsap.to(legs, {
+    stompTween = gsap.to(legsMotionTarget, {
       rotation: stomp.rotation,
       duration: stomp.duration,
       ease: 'power2.inOut',
@@ -2901,6 +2962,10 @@ window.Webflow.push(function () {
     });
 
     gsap.set(legs, {
+      rotation: 0
+    });
+
+    gsap.set(legsMotionTarget, {
       rotation: 0
     });
 
