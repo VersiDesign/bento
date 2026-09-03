@@ -783,7 +783,10 @@ window.Webflow.push(function () {
   const pagePath =
     window.location.pathname.replace(/\/$/, '');
 
-  if (pagePath === '/explore-our-nama') {
+  if (
+    pagePath === '/explore-our-nama' ||
+    pagePath === '/explore-our-cans'
+  ) {
     return;
   }
 
@@ -3805,6 +3808,387 @@ window.Webflow.push(function () {
 });
 
 /* animation cans slide 1 - end */
+/* animation cans slide 3 */
+
+window.Webflow = window.Webflow || [];
+
+window.Webflow.push(function () {
+
+  const pagePath =
+    window.location.pathname.replace(/\/$/, '');
+
+  if (pagePath !== '/explore-our-cans') return;
+
+  const illo = document.querySelector(
+    '.products__illo.illo-slide-3'
+  );
+
+  if (!illo) return;
+
+  const slider = document.querySelector('.products-slider');
+  const slides = slider ?
+    Array.from(slider.querySelectorAll('.w-slide')) :
+    [];
+  const matchingSlide = slides[2];
+
+  const character = illo.querySelector('.illo-img.img-a');
+
+  const ripples = [
+    illo.querySelector('.illo-img.img-b'),
+    illo.querySelector('.illo-img.img-c'),
+    illo.querySelector('.illo-img.img-d'),
+    illo.querySelector('.illo-img.img-e'),
+    illo.querySelector('.illo-img.img-f')
+  ].filter(function (ripple) {
+    return ripple;
+  });
+
+  if (!character || !ripples.length) {
+    return;
+  }
+
+
+  /* =========================================
+     FLOAT SETTINGS
+  ========================================= */
+
+  const floatTiming = {
+    downY: 8,
+    upY: -7,
+    downDuration: 0.72,
+    upDuration: 1.08,
+    settleDuration: 0.6,
+    cycleDuration: 2.55
+  };
+
+  const rippleTiming = {
+    start: 0.1,
+    stagger: 0.18,
+    fadeIn: 0.34,
+    hold: 0.08,
+    fadeOut: 0.72
+  };
+
+  const leaves = [
+    {
+      el: illo.querySelector('.illo-img.img-g'),
+      xPercent: -36,
+      yPercent: 28,
+      driftX: 17,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-h'),
+      xPercent: 36,
+      yPercent: -3,
+      driftX: 16,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-i'),
+      xPercent: -34,
+      yPercent: -7,
+      driftX: 16,
+      driftY: 16,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-j'),
+      xPercent: 34,
+      yPercent: 27,
+      driftX: 17,
+      driftY: 15,
+      rotation: 9
+    },
+    {
+      el: illo.querySelector('.illo-img.img-k'),
+      xPercent: 0,
+      yPercent: 41,
+      driftX: 14,
+      driftY: 17,
+      rotation: 10
+    }
+  ].filter(function (leaf) {
+    return leaf.el;
+  });
+
+  const leafTiming = {
+    minDuration: 2.4,
+    maxDuration: 3.8
+  };
+
+
+  /* =========================================
+     SETUP
+  ========================================= */
+
+  let sequenceTimeline = null;
+  let leafTweens = [];
+  let running = false;
+
+  gsap.set(ripples, {
+    autoAlpha: 0,
+    scale: 1,
+    zIndex: 1,
+    transformOrigin: '50% 50%'
+  });
+
+  gsap.set(character, {
+    autoAlpha: 1,
+    x: 0,
+    y: 0,
+    rotation: 0,
+    scaleX: 1,
+    scaleY: 1,
+    zIndex: 2,
+    transformOrigin: '50% 55%'
+  });
+
+  leaves.forEach(function (leaf, index) {
+    gsap.set(leaf.el, {
+      autoAlpha: 1,
+      xPercent: leaf.xPercent,
+      yPercent: leaf.yPercent,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      zIndex: 3 + index,
+      transformOrigin: '50% 50%'
+    });
+  });
+
+
+  /* =========================================
+     WATER SEQUENCE
+  ========================================= */
+
+  function resetWater() {
+    gsap.set(character, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scaleX: 1,
+      scaleY: 1
+    });
+
+    gsap.set(ripples, {
+      autoAlpha: 0,
+      scale: 1
+    });
+  }
+
+  function createWaterSequence() {
+    const tl = gsap.timeline({
+      paused: true,
+      repeat: -1,
+      repeatDelay: 0
+    });
+
+    tl.to(character, {
+      y: floatTiming.downY,
+      scaleX: 1.008,
+      scaleY: 0.992,
+      duration: floatTiming.downDuration,
+      ease: 'sine.inOut'
+    }, 0);
+
+    ripples.forEach(function (ripple, index) {
+      const rippleStart =
+        rippleTiming.start + index * rippleTiming.stagger;
+
+      tl.fromTo(ripple, {
+        autoAlpha: 0,
+        scale: 0.995
+      }, {
+        autoAlpha: 1,
+        scale: 1,
+        duration: rippleTiming.fadeIn,
+        ease: 'sine.out'
+      }, rippleStart);
+
+      tl.to(ripple, {
+        autoAlpha: 0,
+        scale: 1.01,
+        duration: rippleTiming.fadeOut,
+        ease: 'sine.inOut'
+      }, rippleStart + rippleTiming.fadeIn + rippleTiming.hold);
+    });
+
+    tl.to(character, {
+      y: floatTiming.upY,
+      scaleX: 0.997,
+      scaleY: 1.006,
+      duration: floatTiming.upDuration,
+      ease: 'sine.inOut'
+    }, floatTiming.downDuration);
+
+    tl.to(character, {
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+      duration: floatTiming.settleDuration,
+      ease: 'sine.inOut'
+    }, floatTiming.downDuration + floatTiming.upDuration);
+
+    tl.to({}, {
+      duration: Math.max(
+        0,
+        floatTiming.cycleDuration - tl.duration()
+      )
+    });
+
+    return tl;
+  }
+
+
+  /* =========================================
+     LEAF FLOATING
+  ========================================= */
+
+  function floatLeaf(leaf, index) {
+
+    if (!running) return;
+
+    leafTweens[index] = gsap.to(leaf.el, {
+      x: gsap.utils.random(
+        -leaf.driftX,
+        leaf.driftX
+      ),
+
+      y: gsap.utils.random(
+        -leaf.driftY,
+        leaf.driftY
+      ),
+
+      rotation: gsap.utils.random(
+        -leaf.rotation,
+        leaf.rotation
+      ),
+
+      duration: gsap.utils.random(
+        leafTiming.minDuration,
+        leafTiming.maxDuration
+      ),
+
+      ease: 'sine.inOut',
+
+      onComplete: function () {
+        floatLeaf(leaf, index);
+      }
+    });
+  }
+
+  function startLeaves() {
+    leaves.forEach(function (leaf, index) {
+      floatLeaf(leaf, index);
+    });
+  }
+
+  function stopLeaves() {
+    leafTweens.forEach(function (tween) {
+      if (tween) {
+        tween.kill();
+      }
+    });
+
+    leafTweens = [];
+
+    leaves.forEach(function (leaf) {
+      gsap.set(leaf.el, {
+        xPercent: leaf.xPercent,
+        yPercent: leaf.yPercent,
+        x: 0,
+        y: 0,
+        rotation: 0
+      });
+    });
+  }
+
+
+  /* =========================================
+     START
+  ========================================= */
+
+  function startAnimation() {
+
+    if (running) return;
+
+    running = true;
+
+    resetWater();
+
+    if (sequenceTimeline) {
+      sequenceTimeline.kill();
+    }
+
+    sequenceTimeline = createWaterSequence();
+    sequenceTimeline.play(0);
+
+    startLeaves();
+  }
+
+
+  /* =========================================
+     STOP
+  ========================================= */
+
+  function stopAnimation() {
+
+    if (!running) return;
+
+    running = false;
+
+    if (sequenceTimeline) {
+      sequenceTimeline.kill();
+      sequenceTimeline = null;
+    }
+
+    stopLeaves();
+    resetWater();
+  }
+
+
+  /* =========================================
+     WATCH ACTIVE SLIDE
+  ========================================= */
+
+  function checkState() {
+
+    const isActiveIllustration =
+      illo.classList.contains('is-active');
+
+    const isActiveSlide =
+      matchingSlide &&
+      matchingSlide.getAttribute('aria-hidden') !== 'true';
+
+    if (isActiveIllustration || isActiveSlide) {
+      startAnimation();
+    } else {
+      stopAnimation();
+    }
+  }
+
+  const observer = new MutationObserver(checkState);
+
+  observer.observe(illo, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
+  if (matchingSlide) {
+    observer.observe(matchingSlide, {
+      attributes: true,
+      attributeFilter: ['aria-hidden']
+    });
+  }
+
+  requestAnimationFrame(checkState);
+
+});
+
+/* animation cans slide 3 - end */
 /* animation wine slide 1 */
 
 window.Webflow = window.Webflow || [];
