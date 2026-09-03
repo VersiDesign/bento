@@ -3518,9 +3518,9 @@ window.Webflow.push(function () {
   ========================================= */
 
   const characterFloat = {
-    driftX: 12,
-    driftY: 18,
-    rotation: 4,
+    driftX: 18,
+    driftY: 26,
+    rotation: 6,
     minDuration: 2.8,
     maxDuration: 4.2
   };
@@ -3530,33 +3530,33 @@ window.Webflow.push(function () {
       el: illo.querySelector('.illo-img.img-b'),
       xPercent: -20,
       yPercent: -36,
-      driftX: 15,
-      driftY: 18,
-      rotation: 10
+      driftX: 22,
+      driftY: 25,
+      rotation: 14
     },
     {
       el: illo.querySelector('.illo-img.img-c'),
       xPercent: 33,
       yPercent: -35,
-      driftX: 15,
-      driftY: 18,
-      rotation: 10
+      driftX: 22,
+      driftY: 25,
+      rotation: 14
     },
     {
       el: illo.querySelector('.illo-img.img-d'),
       xPercent: 26,
       yPercent: -18,
-      driftX: 17,
-      driftY: 16,
-      rotation: 9
+      driftX: 24,
+      driftY: 23,
+      rotation: 13
     },
     {
       el: illo.querySelector('.illo-img.img-e'),
       xPercent: 34,
       yPercent: 10,
-      driftX: 16,
-      driftY: 17,
-      rotation: 9
+      driftX: 23,
+      driftY: 24,
+      rotation: 13
     }
   ].filter(function (raspberry) {
     return raspberry.el;
