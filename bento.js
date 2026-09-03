@@ -2525,6 +2525,8 @@ window.Webflow.push(function () {
 
   const legs = illo.querySelector('.illo-img.img-a');
   const torso = illo.querySelector('.illo-img.img-b');
+  const torsoImage =
+    torso && (torso.querySelector('img, svg') || torso.firstElementChild);
   const bowl = illo.querySelector('.illo-img.img-c');
   const flowerWrap = illo.querySelector('.illo-img.yl-flowers');
   const namedFlowers = flowerWrap ? [
@@ -2585,28 +2587,8 @@ window.Webflow.push(function () {
   function syncFlowerWrapBox() {
     if (!flowerWrap) return;
 
-    const sharedOffsetParent =
-      torso.offsetParent &&
-      flowerWrap.offsetParent &&
-      torso.offsetParent === flowerWrap.offsetParent;
-
-    if (sharedOffsetParent) {
-      gsap.set(flowerWrap, {
-        position: 'absolute',
-        left: torso.offsetLeft,
-        top: torso.offsetTop,
-        width: torso.offsetWidth,
-        height: torso.offsetHeight,
-        right: 'auto',
-        bottom: 'auto',
-        x: 0
-      });
-
-      return;
-    }
-
     const torsoRect =
-      torso.getBoundingClientRect();
+      (torsoImage || torso).getBoundingClientRect();
     const parent =
       flowerWrap.offsetParent || illo;
     const parentRect =
