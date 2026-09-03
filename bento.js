@@ -3857,7 +3857,7 @@ window.Webflow.push(function () {
     upY: -7,
     downDuration: 1.44,
     upDuration: 2.16,
-    settleDuration: 1.2,
+    settleDuration: 1.5,
     cycleDuration: 2.55
   };
 
@@ -3910,6 +3910,14 @@ window.Webflow.push(function () {
     }
   };
 
+  const leafAliases = {
+    lowLeft: 'g',
+    midRight: 'h',
+    midLeft: 'i',
+    lowRight: 'j',
+    bottom: 'k'
+  };
+
   const savedLeaves =
     window.bentoCansSlide3.leaves || {};
 
@@ -3925,6 +3933,12 @@ window.Webflow.push(function () {
 
   window.bentoCansSlide3.leaves =
     leafPositions;
+
+  window.bentoCansSlide3.leafKeys =
+    Object.keys(leafDefaults);
+
+  window.bentoCansSlide3.leafAliases =
+    leafAliases;
 
   const leaves = [
     Object.assign({
@@ -4005,16 +4019,40 @@ window.Webflow.push(function () {
     });
   });
 
+  const leafElements = {};
+
+  leaves.forEach(function (leaf) {
+    leafElements[leaf.key] =
+      leaf.el;
+  });
+
+  Object.keys(leafAliases).forEach(function (alias) {
+    leafElements[alias] =
+      leafElements[leafAliases[alias]];
+  });
+
+  window.bentoCansSlide3.leafElements =
+    leafElements;
+
+  function resolveLeafKey(key) {
+    return leafDefaults[key] ?
+      key :
+      leafAliases[key] || key;
+  }
+
   window.bentoCansSlide3.setLeaf = function (key, settings) {
+    const resolvedKey =
+      resolveLeafKey(key);
+
     const leaf =
       leaves.find(function (item) {
-        return item.key === key;
+        return item.key === resolvedKey;
       });
 
     if (!leaf) return null;
 
     Object.assign(
-      leafPositions[key],
+      leafPositions[resolvedKey],
       settings || {}
     );
 
@@ -4106,13 +4144,6 @@ window.Webflow.push(function () {
       duration: floatTiming.settleDuration,
       ease: 'sine.inOut'
     }, floatTiming.downDuration + floatTiming.upDuration);
-
-    tl.to({}, {
-      duration: Math.max(
-        0,
-        floatTiming.cycleDuration * 2 - tl.duration()
-      )
-    });
 
     return tl;
   }
