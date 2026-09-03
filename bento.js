@@ -2665,6 +2665,7 @@ window.Webflow.push(function () {
   let running = false;
   let flowerLayoutFrame = null;
   let flowerLayoutTimer = null;
+  let flowerLayoutSettleTimer = null;
 
   function getPositionOffset(value, freeSpace, fallback) {
     if (!value) return fallback;
@@ -2790,11 +2791,17 @@ window.Webflow.push(function () {
     });
 
     clearTimeout(flowerLayoutTimer);
+    clearTimeout(flowerLayoutSettleTimer);
 
     flowerLayoutTimer = setTimeout(function () {
       positionFlowersOnTorso();
       flowerLayoutTimer = null;
     }, 120);
+
+    flowerLayoutSettleTimer = setTimeout(function () {
+      positionFlowersOnTorso();
+      flowerLayoutSettleTimer = null;
+    }, 360);
   }
 
   gsap.set(visibleLayers, {
@@ -2973,6 +2980,9 @@ window.Webflow.push(function () {
     clearTimeout(flowerLayoutTimer);
     flowerLayoutTimer = null;
 
+    clearTimeout(flowerLayoutSettleTimer);
+    flowerLayoutSettleTimer = null;
+
     resetMotion();
 
     gsap.set(flowers, {
@@ -3030,6 +3040,22 @@ window.Webflow.push(function () {
   }
 
   window.addEventListener('resize', scheduleFlowerLayout);
+  window.addEventListener('scroll', scheduleFlowerLayout, {
+    passive: true
+  });
+  document.addEventListener('scroll', scheduleFlowerLayout, {
+    passive: true,
+    capture: true
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleFlowerLayout, {
+      passive: true
+    });
+    window.visualViewport.addEventListener('scroll', scheduleFlowerLayout, {
+      passive: true
+    });
+  }
 
   if (!torso.complete) {
     torso.addEventListener('load', scheduleFlowerLayout, {
