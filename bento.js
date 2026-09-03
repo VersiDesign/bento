@@ -2588,6 +2588,53 @@ window.Webflow.push(function () {
   let runtimeFlowerLayer = null;
   let flowers = [];
 
+  function createFlowerInstance(template, index) {
+    const sourceImage =
+      template.matches('img') ?
+        template :
+        template.querySelector('img');
+
+    if (!sourceImage) {
+      const clone =
+        template.cloneNode(true);
+
+      clone.className =
+        'nama-runtime-flower runtime-flower-' + (index + 1);
+
+      return clone;
+    }
+
+    const flower =
+      document.createElement('img');
+
+    flower.className =
+      'nama-runtime-flower runtime-flower-' + (index + 1);
+
+    flower.src =
+      sourceImage.currentSrc || sourceImage.src;
+
+    if (sourceImage.srcset) {
+      flower.srcset =
+        sourceImage.srcset;
+    }
+
+    if (sourceImage.sizes) {
+      flower.sizes =
+        sourceImage.sizes;
+    }
+
+    flower.alt =
+      sourceImage.alt || '';
+
+    flower.decoding =
+      'async';
+
+    flower.loading =
+      'eager';
+
+    return flower;
+  }
+
   if (flowerTemplates.length) {
     runtimeFlowerLayer = document.createElement('div');
     runtimeFlowerLayer.className = 'nama-runtime-flowers';
@@ -2598,12 +2645,7 @@ window.Webflow.push(function () {
         flowerTemplates[index] || flowerTemplates[0];
 
       const flower =
-        template.cloneNode(true);
-
-      flower.classList.add(
-        'nama-runtime-flower',
-        'runtime-flower-' + (index + 1)
-      );
+        createFlowerInstance(template, index);
 
       runtimeFlowerLayer.appendChild(flower);
 
