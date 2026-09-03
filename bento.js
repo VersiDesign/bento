@@ -2579,6 +2579,74 @@ window.Webflow.push(function () {
   let stompTween = null;
   let flowerTweens = [];
   let running = false;
+  let flowerBoxFrame = null;
+  let flowerBoxTimer = null;
+
+  function syncFlowerWrapBox() {
+    if (!flowerWrap) return;
+
+    const sharedOffsetParent =
+      torso.offsetParent &&
+      flowerWrap.offsetParent &&
+      torso.offsetParent === flowerWrap.offsetParent;
+
+    if (sharedOffsetParent) {
+      gsap.set(flowerWrap, {
+        position: 'absolute',
+        left: torso.offsetLeft,
+        top: torso.offsetTop,
+        width: torso.offsetWidth,
+        height: torso.offsetHeight,
+        right: 'auto',
+        bottom: 'auto',
+        x: 0
+      });
+
+      return;
+    }
+
+    const torsoRect =
+      torso.getBoundingClientRect();
+    const parent =
+      flowerWrap.offsetParent || illo;
+    const parentRect =
+      parent.getBoundingClientRect();
+
+    if (!torsoRect.width || !torsoRect.height) return;
+
+    gsap.set(flowerWrap, {
+      position: 'absolute',
+      left: torsoRect.left - parentRect.left,
+      top: torsoRect.top - parentRect.top,
+      width: torsoRect.width,
+      height: torsoRect.height,
+      right: 'auto',
+      bottom: 'auto',
+      x: 0
+    });
+  }
+
+  function scheduleFlowerWrapBoxSync() {
+    if (!flowerWrap) return;
+
+    if (flowerBoxFrame) {
+      cancelAnimationFrame(flowerBoxFrame);
+    }
+
+    flowerBoxFrame = requestAnimationFrame(function () {
+      flowerBoxFrame = null;
+      syncFlowerWrapBox();
+    });
+
+    clearTimeout(flowerBoxTimer);
+
+    flowerBoxTimer = setTimeout(function () {
+      syncFlowerWrapBox();
+      flowerBoxTimer = null;
+    }, 120);
+  }
+
+  syncFlowerWrapBox();
 
   gsap.set(visibleLayers, {
     autoAlpha: 1,
@@ -2685,6 +2753,7 @@ window.Webflow.push(function () {
 
     running = true;
 
+    syncFlowerWrapBox();
     resetMotion();
     startTorsoFloat();
     startStomp();
@@ -2717,6 +2786,14 @@ window.Webflow.push(function () {
     });
 
     flowerTweens = [];
+
+    if (flowerBoxFrame) {
+      cancelAnimationFrame(flowerBoxFrame);
+      flowerBoxFrame = null;
+    }
+
+    clearTimeout(flowerBoxTimer);
+    flowerBoxTimer = null;
 
     resetMotion();
   }
@@ -2755,6 +2832,16 @@ window.Webflow.push(function () {
       attributeFilter: ['aria-hidden']
     });
   }
+
+  if (flowerWrap && 'ResizeObserver' in window) {
+    const resizeObserver = new ResizeObserver(function () {
+      scheduleFlowerWrapBoxSync();
+    });
+
+    resizeObserver.observe(torso);
+  }
+
+  window.addEventListener('resize', scheduleFlowerWrapBoxSync);
 
   requestAnimationFrame(checkState);
 
