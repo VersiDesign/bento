@@ -2587,21 +2587,30 @@ window.Webflow.push(function () {
   function syncFlowerWrapBox() {
     if (!flowerWrap) return;
 
-    const torsoRect =
+    const mediaRect =
       (torsoImage || torso).getBoundingClientRect();
     const parent =
       flowerWrap.offsetParent || illo;
     const parentRect =
       parent.getBoundingClientRect();
 
-    if (!torsoRect.width || !torsoRect.height) return;
+    if (!mediaRect.width || !mediaRect.height) return;
+
+    const squareSize =
+      Math.min(mediaRect.width, mediaRect.height);
+
+    const squareLeft =
+      mediaRect.left + ((mediaRect.width - squareSize) / 2);
+
+    const squareTop =
+      mediaRect.top + ((mediaRect.height - squareSize) / 2);
 
     gsap.set(flowerWrap, {
       position: 'absolute',
-      left: torsoRect.left - parentRect.left,
-      top: torsoRect.top - parentRect.top,
-      width: torsoRect.width,
-      height: torsoRect.height,
+      left: squareLeft - parentRect.left,
+      top: squareTop - parentRect.top,
+      width: squareSize,
+      height: squareSize,
       right: 'auto',
       bottom: 'auto',
       x: 0
