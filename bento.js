@@ -3855,9 +3855,6 @@ window.Webflow.push(function () {
   const floatTiming = {
     downY: 8,
     upY: -7,
-    downDuration: 1.44,
-    upDuration: 2.16,
-    settleDuration: 1.5,
     cycleDuration: 2.55
   };
 
@@ -3874,36 +3871,36 @@ window.Webflow.push(function () {
 
   const leafDefaults = {
     g: {
-      xPercent: -36,
-      yPercent: 28,
+      xPercent: -42,
+      yPercent: 37,
       driftX: 17,
       driftY: 16,
       rotation: 9
     },
     h: {
-      xPercent: 36,
-      yPercent: -3,
+      xPercent: 45,
+      yPercent: 26,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
     i: {
-      xPercent: -34,
-      yPercent: -7,
+      xPercent: -38,
+      yPercent: 25,
       driftX: 16,
       driftY: 16,
       rotation: 9
     },
     j: {
-      xPercent: 34,
-      yPercent: 27,
+      xPercent: 20,
+      yPercent: 38,
       driftX: 17,
       driftY: 15,
       rotation: 9
     },
     k: {
-      xPercent: 0,
-      yPercent: 41,
+      xPercent: -8,
+      yPercent: 45,
       driftX: 14,
       driftY: 17,
       rotation: 10
@@ -4115,37 +4112,37 @@ window.Webflow.push(function () {
   }
 
   function createBreathSequence() {
-    const tl = gsap.timeline({
-      paused: true,
+    const breath = {
+      progress: 0
+    };
+
+    function updateBreath() {
+      const wave =
+        Math.sin(
+          breath.progress * Math.PI * 2
+        );
+
+      const y =
+        wave >= 0 ?
+          wave * floatTiming.downY :
+          wave * Math.abs(floatTiming.upY);
+
+      gsap.set(character, {
+        y: y,
+        scaleX: 1 + wave * 0.006,
+        scaleY: 1 - wave * 0.006
+      });
+    }
+
+    updateBreath();
+
+    return gsap.to(breath, {
+      progress: 1,
+      duration: floatTiming.cycleDuration * 2,
+      ease: 'none',
       repeat: -1,
-      repeatDelay: 0
+      onUpdate: updateBreath
     });
-
-    tl.to(character, {
-      y: floatTiming.downY,
-      scaleX: 1.008,
-      scaleY: 0.992,
-      duration: floatTiming.downDuration,
-      ease: 'sine.inOut'
-    }, 0);
-
-    tl.to(character, {
-      y: floatTiming.upY,
-      scaleX: 0.997,
-      scaleY: 1.006,
-      duration: floatTiming.upDuration,
-      ease: 'sine.inOut'
-    }, floatTiming.downDuration);
-
-    tl.to(character, {
-      y: 0,
-      scaleX: 1,
-      scaleY: 1,
-      duration: floatTiming.settleDuration,
-      ease: 'sine.inOut'
-    }, floatTiming.downDuration + floatTiming.upDuration);
-
-    return tl;
   }
 
   function createRippleSequence() {
