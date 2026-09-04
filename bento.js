@@ -1274,7 +1274,9 @@ window.Webflow.push(function () {
       durationMin: 7.5,
       durationMax: 11,
       delay: 0,
-      introDuration: 0.85,
+      introDuration: 1.6,
+      introRange: 0.36,
+      introScale: 0.35,
       ease: 'sine.inOut',
       origin: '50% 50%'
     },
@@ -1289,7 +1291,9 @@ window.Webflow.push(function () {
       durationMin: 5.8,
       durationMax: 9.2,
       delay: 0.08,
-      introDuration: 0.72,
+      introDuration: 1.8,
+      introRange: 0.28,
+      introScale: 0.28,
       ease: 'sine.inOut',
       origin: '50% 58%'
     },
@@ -1304,7 +1308,9 @@ window.Webflow.push(function () {
       durationMin: 6.2,
       durationMax: 9.8,
       delay: 0.16,
-      introDuration: 0.78,
+      introDuration: 1.9,
+      introRange: 0.28,
+      introScale: 0.28,
       ease: 'sine.inOut',
       origin: '50% 62%'
     }
@@ -1403,16 +1409,28 @@ window.Webflow.push(function () {
         removeMotionTween(startTween);
 
         const introTween = gsap.to(layer.el, {
-          x: randomReadable(layer.x, 0.45),
-          y: randomReadable(layer.y, 0.45),
-          rotation: randomReadable(
-            Math.abs(layer.rotation),
-            0.45
+          x: randomReadable(
+            layer.x * layer.introRange,
+            0.18
           ),
-          scaleX: gsap.utils.random(1.01, layer.scale),
-          scaleY: gsap.utils.random(layer.squashY, 0.99),
+          y: randomReadable(
+            layer.y * layer.introRange,
+            0.18
+          ),
+          rotation: randomReadable(
+            Math.abs(layer.rotation) * layer.introRange,
+            0.18
+          ),
+          scaleX: gsap.utils.random(
+            1,
+            1 + (layer.scale - 1) * layer.introScale
+          ),
+          scaleY: gsap.utils.random(
+            1 - (1 - layer.squashY) * layer.introScale,
+            1
+          ),
           duration: layer.introDuration,
-          ease: 'power1.inOut',
+          ease: 'sine.inOut',
           overwrite: 'auto',
           onComplete: function () {
             removeMotionTween(introTween);
